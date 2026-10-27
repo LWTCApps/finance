@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Financial Options &amp; Payment Responsibility | Lorenzo Walker Technical College</title>
+<link rel="icon" type="image/png" href="../../assets/fav.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#231F20;
+  --paper:#FFFFFF;
+  --surface:#F7F5F4;
+  --line:#DDD8D6;
+  --muted:#5D5557;
+  --focus:#3A7B96;
+  --orange-a:#F58220; --orange-b:#F05A2B;
+  --green-a:#BDD14F;  --green-b:#6EA141;
+  --gold-a:#FFC45A;   --gold-b:#F9A03C;
+  --blue-a:#54ADC3;   --blue-b:#3A7B96;
+  --link:#2B6580;
+  --error:#B3261E;
+  --on-hue:#231F20;
+  --display:"Alfa Slab One","Clarendon Black",Rockwell,"Roboto Slab",Georgia,serif;
+  --text:"Source Sans 3","Source Sans Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --s1:4px;--s2:8px;--s3:16px;--s4:24px;--s5:48px;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{background:#fff;scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font:400 17px/1.55 var(--text);-webkit-text-size-adjust:100%}
+a{color:var(--link);text-underline-offset:3px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+.wrap{max-width:960px;margin:0 auto;padding:0 var(--s4)}
+
+/* Brand bubble: circle with one square corner */
+.bubble{display:inline-block;border-radius:50%;border-bottom-left-radius:0;flex:none}
+.bubble.br{border-radius:50%;border-top-left-radius:0}
+.bubble.tr{border-radius:50%;border-bottom-right-radius:0}
+.bubble.tl{border-radius:50%;border-bottom-right-radius:50%;border-top-right-radius:0}
+.h-orange{background:linear-gradient(90deg,var(--orange-a),var(--orange-b))}
+.h-green{background:linear-gradient(90deg,var(--green-a),var(--green-b))}
+.h-gold{background:linear-gradient(90deg,var(--gold-a),var(--gold-b))}
+.h-blue{background:linear-gradient(90deg,var(--blue-a),var(--blue-b))}
+
+/* Brand assets */
+.logo{display:block;width:clamp(190px,30vw,270px);aspect-ratio:720/309;background:center/contain no-repeat}
+.logo-light{background-image:url(../../assets/lwtc-logo.png)}
+.cluster-img{background:center/contain no-repeat url(../../assets/lwtc-icon-cluster.png);aspect-ratio:360/351}
+.notice{border-radius:12px;border:2px solid var(--line);background:var(--surface);padding:var(--s3) var(--s4);margin:0 0 var(--s4);max-width:70ch}
+.notice.ok{border-color:#6EA141}
+.notice.warn{border-color:#F9A03C}
+.notice strong{display:block;margin-bottom:2px}
+.ref{font:400 26px/1.2 var(--display);letter-spacing:.04em;margin:var(--s2) 0}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.status{min-height:1.4em;margin-top:var(--s2);font-weight:600;color:var(--muted)}
+.btn[disabled]{opacity:.6;cursor:progress}
+.prog-icons{display:flex;gap:var(--s2);align-items:flex-end}
+.prog-icons img{height:30px;width:auto;display:block}
+
+/* Header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:var(--s3) 0;flex-wrap:wrap}
+.mark{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink)}
+.cluster{display:grid;grid-template-columns:repeat(2,18px);gap:3px}
+.cluster i{width:18px;height:18px}
+.mark-name{font:400 20px/1.05 var(--display);letter-spacing:.01em}
+.mark-name small{display:block;font:600 12px/1.3 var(--text);letter-spacing:.02em;color:var(--muted);margin-top:3px}
+.office{font-size:15px;color:var(--muted);text-align:right;line-height:1.4}
+.office strong{color:var(--ink)}
+.office a{color:inherit}
+
+.crumbs{display:flex;gap:8px;align-items:center;font-size:15px;font-weight:600;margin:0 0 var(--s3);color:var(--muted)}
+.crumbs a{color:var(--link)}
+/* Hero */
+.hero{padding:var(--s5) 0 var(--s4);position:relative}
+.hero h1{font:400 clamp(34px,6.4vw,64px)/1.04 var(--display);margin:0 0 var(--s3);max-width:16ch;letter-spacing:-.005em}
+.hero p.lede{font-size:19px;max-width:56ch;margin:0;color:var(--muted)}
+.hero-art{position:absolute;right:0;top:var(--s3);display:none}
+@media(min-width:820px){
+  .hero-art{display:block;width:250px}
+}
+
+/* Deadline band */
+.deadline{border-radius:12px;background:linear-gradient(90deg,var(--orange-a),var(--orange-b));color:var(--on-hue);padding:var(--s4);margin:var(--s4) 0 var(--s4)}
+.deadline h2{margin:0 0 var(--s2);font:400 24px/1.15 var(--display)}
+.deadline p{margin:0 0 var(--s3);max-width:62ch;font-size:18px}
+.deadline .row{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+@media(max-width:600px){.deadline .row{grid-template-columns:1fr}}
+.deadline label{font-weight:700;font-size:15px}
+.deadline input{background:#fff;color:#231F20;border-color:#231F20}
+
+/* Step nav */
+.steps{display:flex;gap:var(--s2);flex-wrap:wrap;margin:0 0 var(--s5);padding:0;list-style:none}
+.steps a{display:flex;align-items:center;gap:var(--s2);padding:var(--s2) var(--s3) var(--s2) var(--s2);border:2px solid var(--line);border-radius:48px;text-decoration:none;color:var(--ink);font-weight:600;font-size:15px;background:var(--paper)}
+.steps a .dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:13px;line-height:1}
+.steps a[data-done="true"]{border-color:#6EA141}
+.steps a[data-done="true"] .dot{background:linear-gradient(90deg,var(--green-a),var(--green-b));border-color:transparent;color:#231F20}
+.steps a[data-done="true"] .dot::after{content:"\2713";font-weight:700}
+
+/* Sections */
+section.panel{margin:0 0 var(--s5)}
+.panel-head{display:flex;align-items:center;gap:var(--s3);margin-bottom:var(--s3)}
+.panel-head .bubble{width:52px;height:52px;display:grid;place-items:center;font:400 24px/1 var(--display);color:var(--on-hue)}
+.panel-head h2{font:400 clamp(24px,3.6vw,32px)/1.1 var(--display);margin:0}
+.panel-intro{max-width:62ch;margin:0 0 var(--s4);color:var(--muted)}
+
+/* Fields */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3) var(--s4)}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+.field label,.lbl{display:block;font-weight:700;font-size:15px;margin-bottom:var(--s1)}
+.req{color:var(--error);margin-left:2px}
+input[type=text],input[type=tel],input[type=email],input[type=date]{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:4px;padding:11px 12px;min-height:46px}
+input[type=text]:hover,input[type=tel]:hover,input[type=email]:hover,input[type=date]:hover{border-color:var(--muted)}
+input.invalid{border-color:var(--error)}
+.err{display:none;color:var(--error);font-size:14px;font-weight:600;margin-top:var(--s1)}
+.field.has-error .err,.has-error>.err{display:block}
+.hint{font-size:14px;color:var(--muted);margin-top:var(--s1)}
+
+/* Funding option cards */
+.options{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s3)}
+@media(max-width:720px){.options{grid-template-columns:1fr}}
+.opt{border:2px solid var(--line);border-radius:12px;padding:var(--s3);display:grid;grid-template-columns:48px 1fr;gap:var(--s3);background:var(--paper)}
+.opt .bubble{width:48px;height:48px;display:grid;place-items:center;font:400 20px/1 var(--display);color:var(--on-hue)}
+.opt h3{margin:0 0 var(--s1);font-size:18px;line-height:1.25;font-weight:700}
+.opt p{margin:0 0 var(--s2);font-size:16px}
+.opt ul{margin:var(--s1) 0 var(--s2);padding-left:20px;font-size:15px}
+.opt .go{font-weight:700;font-size:15px}
+.chip{display:inline-block;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:1px 8px;font-weight:700;font-size:14px}
+
+/* Funding plan */
+.plan{background:var(--surface);border-radius:12px;padding:var(--s4)}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+legend{padding:0;font-weight:700;font-size:15px;margin-bottom:var(--s2)}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2) var(--s4)}
+@media(max-width:640px){.checks{grid-template-columns:1fr}}
+.chk{display:flex;align-items:flex-start;gap:12px;padding:10px 12px;border-radius:4px;cursor:pointer;min-height:44px}
+.chk:hover{background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.chk input{appearance:none;-webkit-appearance:none;width:24px;height:24px;margin:0;flex:none;border:2px solid var(--ink);border-radius:4px;background:var(--paper);display:grid;place-items:center;cursor:pointer;margin-top:1px}
+.chk input[type=radio]{border-radius:50%}
+.chk input:checked{background:linear-gradient(90deg,var(--green-a),var(--green-b));border-color:#4E7A2F}
+.chk input:checked::after{content:"\2713";color:#231F20;font-weight:700;font-size:16px;line-height:1}
+.chk span{font-weight:600}
+.fafsa{grid-column:1/-1;border-bottom:1px solid var(--line);padding-bottom:var(--s3);margin-bottom:var(--s2)}
+.fafsa .sub{display:flex;gap:var(--s2) var(--s4);flex-wrap:wrap;margin-top:var(--s1)}
+.other-row{margin-top:var(--s3)}
+
+/* Acknowledgements */
+.acks{list-style:none;margin:0;padding:0;display:grid;gap:var(--s3)}
+.ack{display:grid;grid-template-columns:1fr 112px;gap:var(--s3);align-items:center;border:2px solid var(--line);border-radius:12px;padding:var(--s3) var(--s4);transition:border-color .2s,background .2s}
+.ack.done{border-color:#6EA141;background:color-mix(in srgb,#92B547 10%,var(--paper))}
+.ack.has-error{border-color:var(--error)}
+.ack p{margin:0;max-width:60ch}
+.ack .initials label{font-weight:700;font-size:13px;display:block;margin-bottom:2px;text-align:center}
+.ack .initials input{text-align:center;font:700 20px/1 var(--display);text-transform:uppercase;letter-spacing:.06em;padding:10px 4px}
+.ack .err{grid-column:1/-1;margin:0}
+@media(max-width:560px){.ack{grid-template-columns:1fr;padding:var(--s3)}.ack .initials{max-width:120px}}
+.tally{margin-top:var(--s3);font-weight:600;color:var(--muted)}
+
+/* Signature */
+.sign{border:2px solid var(--ink);border-radius:12px;padding:var(--s4)}
+.sign .statement{font-weight:700;font-size:18px;margin:0 0 var(--s4);max-width:58ch}
+.sig-input{font:400 28px/1.2 "Segoe Script","Bradley Hand","Brush Script MT",cursive,serif!important;padding:10px 12px!important}
+.guardian{margin-top:var(--s4);padding-top:var(--s4);border-top:1px dashed var(--line)}
+.guardian-fields{margin-top:var(--s3)}
+
+/* Actions */
+.actions{display:flex;gap:var(--s3);flex-wrap:wrap;align-items:center;margin-top:var(--s4)}
+.btn{font:700 17px/1 var(--text);border:0;border-radius:48px;padding:16px 28px;min-height:52px;cursor:pointer;color:var(--on-hue);background:linear-gradient(90deg,var(--orange-a),var(--orange-b));text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.btn:hover{filter:brightness(1.06);box-shadow:0 0 0 3px color-mix(in srgb,var(--orange-b) 30%,transparent)}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+.btn.alt:hover{background:var(--surface);box-shadow:none}
+.form-error{display:none;color:var(--error);font-weight:700;margin-top:var(--s3)}
+.form-error.show{display:block}
+
+/* Confirmation */
+#done{display:none}
+#done.show{display:block}
+.done-head{display:flex;gap:var(--s4);align-items:center;margin-bottom:var(--s4);flex-wrap:wrap}
+.done-head .bubble{width:84px;height:84px;display:grid;place-items:center;font:400 40px/1 var(--display);color:var(--on-hue)}
+.done-head h2{font:400 clamp(28px,4.5vw,42px)/1.1 var(--display);margin:0 0 var(--s1)}
+.summary{border:2px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:var(--s4)}
+.summary h3{margin:0;padding:var(--s2) var(--s3);background:var(--surface);font-size:16px;border-bottom:1px solid var(--line)}
+.summary dl{margin:0;display:grid;grid-template-columns:minmax(120px,200px) 1fr}
+.summary dt,.summary dd{padding:10px var(--s3);margin:0;border-bottom:1px solid var(--line)}
+.summary dt{font-weight:700;font-size:15px;color:var(--muted)}
+.summary dd{overflow-wrap:anywhere}
+.summary dl>:nth-last-child(-n+2){border-bottom:0}
+.next{background:var(--surface);border-radius:12px;padding:var(--s4)}
+.next h3{margin:0 0 var(--s2);font:400 22px/1.15 var(--display)}
+.next ul{margin:0;padding-left:20px}
+.next li{margin-bottom:6px}
+
+footer{border-top:2px solid var(--line);margin-top:var(--s5);padding:var(--s4) 0 var(--s5);color:var(--muted);font-size:15px}
+footer .row{display:flex;justify-content:space-between;gap:var(--s3);flex-wrap:wrap}
+.bar{height:8px;display:flex}
+.bar i{flex:1}
+
+@media print{
+  :root{--paper:#fff;--ink:#231F20;--surface:#fff;--line:#999;--muted:#444}
+  .hero-art,.steps,.actions,.no-print,.office,.theme,#sendStatus{display:none!important}
+  body{font-size:12px}
+  .deadline{background:#fff!important;border:2px solid #231F20}
+  .hero{padding:8px 0}
+  .hero h1{font-size:26px}
+  #done.show{display:block}
+  #form{display:none!important}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="bar" aria-hidden="true"><i class="h-orange"></i><i class="h-green"></i><i class="h-gold"></i><i class="h-blue"></i></div>
+
+<div class="wrap">
+  <header class="top">
+    <a class="mark" href="../../" aria-label="Lorenzo Walker Technical College Financial Aid home"><span class="logo logo-light" role="img" aria-label="Lorenzo Walker Technical College"></span></a>
+    <div class="office">
+      <strong>Financial Aid Office</strong><br>
+      3702 Estey Avenue, Naples, FL 34104<br>
+      <a href="tel:+12393770900">239-377-0900</a> &middot; Mon&ndash;Fri, 7:00 a.m.&ndash;3:00 p.m.
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="hero">
+      <div class="hero-art cluster-img" aria-hidden="true"></div>
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="../../">Financial Aid</a><span aria-hidden="true">/</span><span aria-current="page">Financial responsibility</span></nav>
+      <h1>Financial options &amp; payment responsibility</h1>
+      <p class="lede">Choose how you plan to pay for your program, then confirm you understand what’s due and when. It takes about five minutes.</p>
+    </div>
+
+    <div class="deadline" role="note">
+      <h2>Payment deadline: end of drop/add</h2>
+      <p>All outstanding <strong>tuition, laboratory fees, and user fees</strong> must be paid in full, or covered by an approved funding source on file with the Financial Aid Office, <strong>by the end of the drop/add period</strong> for each term of enrollment.</p>
+      <div class="row">
+        <div class="field">
+          <label for="term">Term<span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="term" name="term" autocomplete="off" placeholder="e.g., Spring 2027" required form="form">
+          <div class="err" id="err-term">Enter the term you’re enrolling in.</div>
+        </div>
+        <div class="field">
+          <label for="dropadd">Drop/add period ends<span class="req" aria-hidden="true">*</span></label>
+          <input type="date" id="dropadd" name="dropadd" required form="form">
+          <div class="err" id="err-dropadd">Enter the drop/add end date.</div>
+        </div>
+      </div>
+    </div>
+
+    <form id="form" novalidate>
+      <ol class="steps" aria-label="Form progress">
+        <li><a href="#s1" data-step="1"><span class="dot"></span>Your information</a></li>
+        <li><a href="#s2" data-step="2"><span class="dot"></span>Funding options</a></li>
+        <li><a href="#s3" data-step="3"><span class="dot"></span>Your funding plan</a></li>
+        <li><a href="#s4" data-step="4"><span class="dot"></span>Acknowledgement</a></li>
+      </ol>
+
+      <!-- 1 -->
+      <section class="panel" id="s1" aria-labelledby="h1">
+        <div class="panel-head"><span class="bubble h-orange" aria-hidden="true">1</span><h2 id="h1">Student information</h2></div>
+        <div class="grid">
+          <div class="field"><label for="name">Full legal name<span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="name" name="name" autocomplete="name" required><div class="err">Enter your full legal name.</div></div>
+          <div class="field"><label for="sid">Student ID #<span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="sid" name="sid" inputmode="numeric" autocomplete="off" required><div class="err">Enter your student ID number.</div></div>
+          <div class="field"><label for="phone">Phone number<span class="req" aria-hidden="true">*</span></label>
+            <input type="tel" id="phone" name="phone" autocomplete="tel" required><div class="err">Enter a phone number with area code.</div></div>
+          <div class="field"><label for="email">Email address<span class="req" aria-hidden="true">*</span></label>
+            <input type="email" id="email" name="email" autocomplete="email" required><div class="err">Enter a valid email address, like name@example.com.</div></div>
+          <div class="field"><label for="program">Program of study<span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="program" name="program" autocomplete="off" required><div class="err">Enter your program of study.</div></div>
+          <div class="field"><label for="start">Anticipated start date<span class="req" aria-hidden="true">*</span></label>
+            <input type="date" id="start" name="start" required><div class="err">Enter your anticipated start date.</div></div>
+        </div>
+      </section>
+
+      <!-- 2 -->
+      <section class="panel" id="s2" aria-labelledby="h2">
+        <div class="panel-head"><span class="bubble tr h-green" aria-hidden="true">2</span><h2 id="h2">Financial aid &amp; assistance options</h2></div>
+        <p class="panel-intro">Review the options below. Apply for every one you may qualify for <em>before</em> the term starts, so your funding is in place by the drop/add deadline.</p>
+        <div class="options">
+          <article class="opt"><span class="bubble h-orange" aria-hidden="true">A</span><div>
+            <h3>Federal Student Aid (FAFSA)</h3>
+            <p>The FAFSA determines your eligibility for the Federal Pell Grant.</p>
+            <p>LWTC school code: <span class="chip">013234</span></p>
+            <a class="go" href="https://studentaid.gov" target="_blank" rel="noopener">Apply at studentaid.gov</a></div></article>
+
+          <article class="opt"><span class="bubble tr h-green" aria-hidden="true">B</span><div>
+            <h3>CareerSource Southwest Florida</h3>
+            <p>Tuition assistance and workforce grants (WIOA) for eligible job seekers in Southwest Florida.</p>
+            <a class="go" href="https://careersourcesouthwestflorida.com/" target="_blank" rel="noopener">Visit CareerSource SWFL</a></div></article>
+
+          <article class="opt"><span class="bubble br h-gold" aria-hidden="true">C</span><div>
+            <h3>Collier Community Foundation</h3>
+            <p>Donor-established scholarships, including several for technical and vocational students, through one common online application.</p>
+            <a class="go" href="https://colliercf.org" target="_blank" rel="noopener">Apply at colliercf.org</a></div></article>
+
+          <article class="opt"><span class="bubble tl h-blue" aria-hidden="true">D</span><div>
+            <h3>LWTC institutional scholarships &amp; assistance</h3>
+            <p>Institutional scholarships and Workforce Development Assistance (WDA), based on need, academic standing, and program requirements. Ask Financial Aid about current cycles.</p>
+            <a class="go" href="https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=SjyUWVNiDU2KmP71AwPTS46f9pBak6FGqxzqYowUBWJUNE1MRlFFMTVRR01PQVFHVzdSQzVVNzFXQS4u" target="_blank" rel="noopener">LWTC internal scholarship application</a></div></article>
+
+          <article class="opt"><span class="bubble h-orange" aria-hidden="true">E</span><div>
+            <h3>Florida Bright Futures Scholarship</h3>
+            <p>For Florida high school graduates who meet academic, test score, and service hour requirements, including Gold Seal Vocational and Gold Seal CAPE Scholars.</p>
+            <p><strong>Bring to Financial Aid:</strong> your award confirmation.</p></div></article>
+
+          <article class="opt"><span class="bubble tr h-green" aria-hidden="true">F</span><div>
+            <h3>Learn 2 Earn Charitable Foundation</h3>
+            <p>Scholarships plus mentorship and success coaching for students pursuing career, technical, and trade certifications.</p>
+            <a class="go" href="https://learn2earnscholarship.org/" target="_blank" rel="noopener">Apply at learn2earnscholarship.org</a></div></article>
+
+          <article class="opt"><span class="bubble br h-gold" aria-hidden="true">G</span><div>
+            <h3>Veterans Affairs (VA) education benefits</h3>
+            <p>Veterans, service members, and eligible dependents may use VA education benefits.</p>
+            <p><strong>Bring to Financial Aid:</strong></p>
+            <ul><li>DD-214 (Certificate of Discharge from Active Duty)</li><li>Certificate of Eligibility (COE) from the VA</li></ul></div></article>
+
+          <article class="opt"><span class="bubble tl h-blue" aria-hidden="true">H</span><div>
+            <h3>Florida Vocational Rehabilitation (VR)</h3>
+            <p>Possible financial support and career services for people with physical, mental, or learning disabilities to prepare for, gain, or retain employment.</p>
+            <a class="go" href="https://rehabworks.org/" target="_blank" rel="noopener">Visit rehabworks.org</a></div></article>
+        </div>
+      </section>
+
+      <!-- 3 -->
+      <section class="panel" id="s3" aria-labelledby="h3">
+        <div class="panel-head"><span class="bubble br h-gold" aria-hidden="true">3</span><h2 id="h3">Anticipated funding plan</h2></div>
+        <p class="panel-intro">Check all that apply. You can change your plan later by contacting the Financial Aid Office.</p>
+        <div class="plan" id="plan">
+          <div class="checks">
+            <fieldset class="fafsa">
+              <legend>FAFSA</legend>
+              <div class="sub">
+                <label class="chk"><input type="radio" name="fafsa" value="I applied"><span>I applied</span></label>
+                <label class="chk"><input type="radio" name="fafsa" value="I will apply"><span>I will apply</span></label>
+                <label class="chk"><input type="radio" name="fafsa" value="I will not apply"><span>I will not apply</span></label>
+              </div>
+            </fieldset>
+            <label class="chk"><input type="checkbox" name="fund" value="CareerSource Southwest Florida"><span>CareerSource Southwest Florida</span></label>
+            <label class="chk"><input type="checkbox" name="fund" value="Collier Community Foundation Scholarship"><span>Collier Community Foundation Scholarship</span></label>
+            <label class="chk"><input type="checkbox" name="fund" value="VA Education Benefits"><span>VA Education Benefits</span></label>
+            <label class="chk"><input type="checkbox" name="fund" value="Learn 2 Earn Scholarship"><span>Learn 2 Earn Scholarship</span></label>
+            <label class="chk"><input type="checkbox" name="fund" value="Vocational Rehabilitation"><span>Vocational Rehabilitation</span></label>
+            <label class="chk"><input type="checkbox" name="fund" value="LWTC Institutional Scholarship / WDA"><span>LWTC Institutional Scholarship / WDA</span></label>
+            <label class="chk"><input type="checkbox" name="fund" value="Bright Futures Scholarship"><span>Bright Futures Scholarship</span></label>
+            <label class="chk"><input type="checkbox" name="fund" value="Florida Prepaid Plan"><span>Florida Prepaid Plan</span></label>
+            <label class="chk"><input type="checkbox" name="fund" value="Self-Pay / Out-of-Pocket"><span>Self-Pay / Out-of-Pocket</span></label>
+            <label class="chk"><input type="checkbox" name="fund" id="otherChk" value="Other"><span>Other</span></label>
+          </div>
+          <div class="other-row field" id="otherRow" hidden>
+            <label for="otherTxt">Describe your other funding source<span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="otherTxt" name="otherTxt" autocomplete="off">
+            <div class="err">Describe the other funding source.</div>
+          </div>
+          <div class="err" id="err-plan" style="margin-top:16px">Select at least one way you plan to pay.</div>
+        </div>
+      </section>
+
+      <!-- 4 -->
+      <section class="panel" id="s4" aria-labelledby="h4">
+        <div class="panel-head"><span class="bubble tl h-blue" aria-hidden="true">4</span><h2 id="h4">Financial responsibility acknowledgement</h2></div>
+        <p class="panel-intro">Read each statement, then type your initials to confirm you understand.</p>
+        <ol class="acks" id="acks">
+          <li class="ack"><p>I understand that <strong>all outstanding tuition, laboratory fees, and user fees are due in full by the end of the drop/add period</strong> for each term in which I am enrolled.</p>
+            <div class="initials"><label for="i1">Initials</label><input type="text" id="i1" maxlength="4" autocomplete="off" aria-label="Initials for statement 1"></div><div class="err">Initial this statement to continue.</div></li>
+          <li class="ack"><p>I understand that third-party funding (FAFSA/Pell, grants, VA benefits, Vocational Rehabilitation, CareerSource, and scholarships) is subject to approval and eligibility, and that <strong>approval or authorization must be on file with the Financial Aid Office by the end of the drop/add period</strong> to be applied toward my balance.</p>
+            <div class="initials"><label for="i2">Initials</label><input type="text" id="i2" maxlength="4" autocomplete="off" aria-label="Initials for statement 2"></div><div class="err">Initial this statement to continue.</div></li>
+          <li class="ack"><p>I understand that I am <strong>ultimately and fully responsible</strong> for all tuition, fees, books, and supply expenses incurred during my enrollment.</p>
+            <div class="initials"><label for="i3">Initials</label><input type="text" id="i3" maxlength="4" autocomplete="off" aria-label="Initials for statement 3"></div><div class="err">Initial this statement to continue.</div></li>
+          <li class="ack"><p>If any expected funding is delayed, reduced, canceled, or insufficient to cover my total balance, <strong>I agree to pay the remaining balance</strong> by the deadline above, in accordance with LWTC’s payment policy.</p>
+            <div class="initials"><label for="i4">Initials</label><input type="text" id="i4" maxlength="4" autocomplete="off" aria-label="Initials for statement 4"></div><div class="err">Initial this statement to continue.</div></li>
+          <li class="ack"><p>I understand that an unpaid balance after the drop/add period may result in my <strong>withdrawal from class</strong> and/or a hold on my records, transcripts, or certificate until the balance is paid.</p>
+            <div class="initials"><label for="i5">Initials</label><input type="text" id="i5" maxlength="4" autocomplete="off" aria-label="Initials for statement 5"></div><div class="err">Initial this statement to continue.</div></li>
+        </ol>
+        <p class="tally" id="tally" aria-live="polite">0 of 5 statements initialed</p>
+
+        <div class="sign" style="margin-top:32px">
+          <p class="statement">By signing below, I confirm that I have read and understand this form and agree to its terms.</p>
+          <div class="grid">
+            <div class="field"><label for="sig">Student signature<span class="req" aria-hidden="true">*</span></label>
+              <input type="text" id="sig" class="sig-input" autocomplete="off" aria-describedby="sigHint"><div class="hint" id="sigHint">Type your full name to sign.</div><div class="err">Type your name to sign.</div></div>
+            <div class="field"><label for="sigDate">Date<span class="req" aria-hidden="true">*</span></label>
+              <input type="date" id="sigDate"><div class="err">Enter today’s date.</div></div>
+            <div class="field"><label for="printed">Printed name<span class="req" aria-hidden="true">*</span></label>
+              <input type="text" id="printed" autocomplete="off"><div class="err">Enter your printed name.</div></div>
+          </div>
+
+          <div class="guardian">
+            <label class="chk" style="padding-left:0"><input type="checkbox" id="minor"><span>I’m under 18 and need a parent or guardian signature</span></label>
+            <div class="grid guardian-fields" id="guardianFields" hidden>
+              <div class="field"><label for="gsig">Parent / guardian signature<span class="req" aria-hidden="true">*</span></label>
+                <input type="text" id="gsig" class="sig-input" autocomplete="off"><div class="hint">Parent or guardian types their full name to sign.</div><div class="err">A parent or guardian must sign.</div></div>
+              <div class="field"><label for="gdate">Date<span class="req" aria-hidden="true">*</span></label>
+                <input type="date" id="gdate"><div class="err">Enter the date.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hp" aria-hidden="true"><label>Leave this empty<input type="text" id="website" name="website" tabindex="-1" autocomplete="off"></label></div>
+        <div class="form-error" id="formError" role="alert" tabindex="-1"></div>
+        <div class="actions">
+          <button type="submit" class="btn" id="submitBtn">Review and finish</button>
+        </div>
+        <div class="status" id="sendStatus" role="status" aria-live="polite"></div>
+      </section>
+    </form>
+
+    <section id="done" aria-live="polite" tabindex="-1">
+      <div class="done-head">
+        <span class="bubble h-green" aria-hidden="true">&#10003;</span>
+        <div>
+          <h2 id="doneTitle">Your acknowledgement is ready</h2>
+          <p style="margin:0;color:var(--muted)" id="doneSub">Completed <span id="doneStamp"></span></p>
+        </div>
+      </div>
+      <div class="notice" id="doneNotice" role="status"></div>
+      <div class="summary"><h3>Student</h3><dl id="sumStudent"></dl></div>
+      <div class="summary"><h3>Funding plan</h3><dl id="sumFunding"></dl></div>
+      <div class="summary"><h3>Acknowledgement</h3><dl id="sumAck"></dl></div>
+      <div class="next">
+        <h3>Next step</h3>
+        <ul>
+          <li id="nextPrint"></li>
+          <li>Bring the documents your funding sources require (for example, a Bright Futures award confirmation, or your DD-214 and VA Certificate of Eligibility).</li>
+          <li>Make sure approval or payment is on file <strong>by <span id="doneDeadline"></span></strong>.</li>
+        </ul>
+      </div>
+      <div class="actions">
+        <button class="btn" id="printBtn" type="button">Print or save as PDF</button>
+        <button class="btn alt" id="editBtn" type="button">Edit my answers</button>
+        <a class="btn alt" href="../../">Back to Financial Aid</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="row">
+      <span><a href="../../">Financial Aid</a> &middot; Lorenzo Walker Technical College</span>
+      <span class="prog-icons" aria-hidden="true"><img alt="" src="../../assets/lwtc-bubble-orange.png"><img alt="" src="../../assets/lwtc-bubble-green.png"><img alt="" src="../../assets/lwtc-bubble-gold.png"><img alt="" src="../../assets/lwtc-bubble-blue.png"></span>
+      <span>Rev. 10/2026</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* The page never talks to Power Automate directly. It posts to the site's own
+   Cloudflare Worker, which holds the flow URL and secret (see the Build Guide).
+   Opened straight from a file, or with SUBMIT_URL empty, the page falls back to
+   review-and-print mode and says nothing was sent. */
+var CONFIG={
+  SUBMIT_URL:"/api/submit/financial-responsibility",
+  OFFICE_PHONE:"239-377-0900",
+  FORM_REVISION:"10/2026",
+  TIMEOUT_MS:25000
+};
+var LIVE=!!CONFIG.SUBMIT_URL && location.protocol!=='file:';
+
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  var form=$('#form');
+
+  // Default signature dates to today (local time)
+  function today(){var d=new Date();var m=('0'+(d.getMonth()+1)).slice(-2),day=('0'+d.getDate()).slice(-2);return d.getFullYear()+'-'+m+'-'+day}
+  $('#sigDate').value=today();
+  $('#gdate').value=today();
+
+  function fmtDate(v){
+    if(!v)return '';
+    var p=v.split('-');if(p.length!==3)return v;
+    var d=new Date(+p[0],+p[1]-1,+p[2]);
+    return d.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  }
+  function setErr(el,on){
+    var box=el.closest('.field')||el.closest('.ack');
+    if(!box)return;
+    box.classList.toggle('has-error',on);
+    el.classList.toggle('invalid',on);
+    if(on)el.setAttribute('aria-invalid','true');else el.removeAttribute('aria-invalid');
+  }
+  function filled(id){return $('#'+id).value.trim().length>0}
+  function emailOk(v){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim())}
+  function phoneOk(v){return v.replace(/\D/g,'').length>=10}
+
+  // Dynamic UI
+  $('#otherChk').addEventListener('change',function(){
+    $('#otherRow').hidden=!this.checked;
+    if(this.checked)$('#otherTxt').focus();
+  });
+  $('#minor').addEventListener('change',function(){
+    $('#guardianFields').hidden=!this.checked;
+    update();
+  });
+
+  // Rules per field
+  var rules={
+    term:function(){return filled('term')},
+    dropadd:function(){return filled('dropadd')},
+    name:function(){return filled('name')},
+    sid:function(){return filled('sid')},
+    phone:function(){return phoneOk($('#phone').value)},
+    email:function(){return emailOk($('#email').value)},
+    program:function(){return filled('program')},
+    start:function(){return filled('start')},
+    sig:function(){return filled('sig')},
+    sigDate:function(){return filled('sigDate')},
+    printed:function(){return filled('printed')}
+  };
+  function guardianOn(){return $('#minor').checked}
+  function planOk(){
+    var any=$$('input[name=fund]:checked').length>0||!!$('input[name=fafsa]:checked');
+    return any;
+  }
+  function otherOk(){return !$('#otherChk').checked||filled('otherTxt')}
+  function initialsDone(){return [1,2,3,4,5].filter(function(n){return filled('i'+n)}).length}
+
+  function stepState(){
+    var s1=['name','sid','phone','email','program','start'].every(function(k){return rules[k]()});
+    var s3=planOk()&&otherOk();
+    var s4=initialsDone()===5&&rules.sig()&&rules.sigDate()&&rules.printed()&&(!guardianOn()||(filled('gsig')&&filled('gdate')));
+    return {1:s1&&rules.term()&&rules.dropadd(),2:true,3:s3,4:s4};
+  }
+  function update(){
+    var st=stepState();
+    // Step 2 is informational; mark done once any plan is chosen
+    st[2]=st[3];
+    $$('.steps a').forEach(function(a){a.dataset.done=String(!!st[a.dataset.step])});
+    var n=initialsDone();
+    $('#tally').textContent=n+' of 5 statements initialed';
+    [1,2,3,4,5].forEach(function(i){
+      var li=$('#i'+i).closest('.ack');
+      li.classList.toggle('done',filled('i'+i));
+      if(filled('i'+i)){li.classList.remove('has-error');$('#i'+i).classList.remove('invalid')}
+    });
+  }
+  form.addEventListener('input',function(e){
+    var t=e.target;
+    if(t.id&&rules[t.id]&&rules[t.id]())setErr(t,false);
+    if(t.name==='fund'||t.name==='fafsa')$('#err-plan').style.display='none';
+    update();
+  });
+  form.addEventListener('change',update);
+  // Term and drop/add live outside the form element visually but belong to it
+  ['term','dropadd'].forEach(function(id){$('#'+id).addEventListener('input',function(){
+    if(rules[id]())setErr(this,false);update();
+  })});
+  // Show an errors-in-view helper
+  $$('.err').forEach(function(e){e.setAttribute('role','alert')});
+
+  function validate(){
+    var first=null,problems=[];
+    function bad(el,msg){setErr(el,true);if(!first)first=el;problems.push(msg)}
+    // Term / drop-add use separate err blocks
+    ['term','dropadd'].forEach(function(id){
+      var el=$('#'+id);
+      var box=el.closest('.field');
+      var ok=rules[id]();
+      box.classList.toggle('has-error',!ok);el.classList.toggle('invalid',!ok);
+      if(!ok){if(!first)first=el;problems.push(id)}
+    });
+    Object.keys(rules).forEach(function(k){
+      if(k==='term'||k==='dropadd')return;
+      var el=$('#'+k);
+      if(!rules[k]())bad(el,k);else setErr(el,false);
+    });
+    // Plan
+    var pOk=planOk();
+    $('#err-plan').style.display=pOk?'none':'block';
+    if(!pOk){if(!first)first=$('input[name=fafsa]');problems.push('plan')}
+    if(!otherOk()){$('#otherRow').classList.add('has-error');$('#otherTxt').classList.add('invalid');if(!first)first=$('#otherTxt');problems.push('other')}
+    else{$('#otherRow').classList.remove('has-error');$('#otherTxt').classList.remove('invalid')}
+    // Initials
+    [1,2,3,4,5].forEach(function(i){
+      var el=$('#i'+i),li=el.closest('.ack');
+      var ok=filled('i'+i);
+      li.classList.toggle('has-error',!ok);el.classList.toggle('invalid',!ok);
+      if(!ok){if(!first)first=el;problems.push('i'+i)}
+    });
+    // Guardian
+    if(guardianOn()){
+      ['gsig','gdate'].forEach(function(id){
+        var el=$('#'+id);var ok=filled(id);
+        setErr(el,!ok);if(!ok){if(!first)first=el;problems.push(id)}
+      });
+    }
+    return {first:first,problems:problems};
+  }
+
+  function dl(target,pairs){
+    target.innerHTML='';
+    pairs.forEach(function(p){
+      var dt=document.createElement('dt');dt.textContent=p[0];
+      var dd=document.createElement('dd');dd.textContent=p[1]||'\u2014';
+      target.appendChild(dt);target.appendChild(dd);
+    });
+  }
+
+  var sending=false;
+  function makeRef(){
+    var d=new Date(),p=function(n){return ('0'+n).slice(-2)};
+    var chars='ABCDEFGHJKMNPQRSTUVWXYZ23456789',out='';
+    var arr=new Uint8Array(4);
+    (window.crypto||window.msCrypto).getRandomValues(arr);
+    for(var i=0;i<4;i++)out+=chars[arr[i]%chars.length];
+    return 'LWTC-FA-'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+out;
+  }
+  function collect(ref){
+    var fa=$('input[name=fafsa]:checked');
+    var funds=$$('input[name=fund]:checked').map(function(c){return c.value});
+    var o={
+      reference:ref,
+      submittedAt:new Date().toISOString(),
+      formRevision:CONFIG.FORM_REVISION,
+      term:$('#term').value.trim(),
+      dropAddEnds:$('#dropadd').value,
+      studentName:$('#name').value.trim(),
+      studentId:$('#sid').value.trim(),
+      phone:$('#phone').value.trim(),
+      email:$('#email').value.trim(),
+      program:$('#program').value.trim(),
+      startDate:$('#start').value,
+      fafsaStatus:fa?fa.value:'',
+      fundingSources:funds,
+      fundingSummary:(fa?['FAFSA: '+fa.value]:[]).concat(funds.map(function(f){return f==='Other'?'Other: '+$('#otherTxt').value.trim():f})).join('; '),
+      otherFunding:$('#otherChk').checked?$('#otherTxt').value.trim():'',
+      initials:[1,2,3,4,5].map(function(i){return $('#i'+i).value.trim().toUpperCase()}),
+      signature:$('#sig').value.trim(),
+      signatureDate:$('#sigDate').value,
+      printedName:$('#printed').value.trim(),
+      under18:guardianOn(),
+      guardianSignature:guardianOn()?$('#gsig').value.trim():'',
+      guardianDate:guardianOn()?$('#gdate').value:''
+    };
+    return o;
+  }
+  function showDone(sent,d){
+    dl($('#sumStudent'),[
+      ['Reference',d.reference],
+      ['Full legal name',d.studentName],
+      ['Student ID #',d.studentId],
+      ['Phone',d.phone],
+      ['Email',d.email],
+      ['Program of study',d.program],
+      ['Anticipated start',fmtDate(d.startDate)],
+      ['Term',d.term],
+      ['Drop/add ends',fmtDate(d.dropAddEnds)]
+    ]);
+    var rows=[];
+    if(d.fafsaStatus)rows.push(['FAFSA',d.fafsaStatus]);
+    d.fundingSources.forEach(function(f){rows.push(['Funding',f==='Other'?'Other: '+d.otherFunding:f])});
+    dl($('#sumFunding'),rows);
+    var ack=d.initials.map(function(v,i){return ['Statement '+(i+1),'Initialed '+v]});
+    ack.push(['Student signature',d.signature+' \u00b7 '+fmtDate(d.signatureDate)]);
+    ack.push(['Printed name',d.printedName]);
+    if(d.under18)ack.push(['Parent / guardian',d.guardianSignature+' \u00b7 '+fmtDate(d.guardianDate)]);
+    dl($('#sumAck'),ack);
+
+    var n=$('#doneNotice');n.innerHTML='';
+    var strong=document.createElement('strong');var p=document.createElement('span');
+    if(sent){
+      $('#doneTitle').textContent='Submitted to the Financial Aid Office';
+      $('#doneSub').textContent='Received '+new Date().toLocaleString('en-US',{dateStyle:'long',timeStyle:'short'});
+      n.className='notice ok';
+      strong.textContent='Your reference number';
+      var ref=document.createElement('div');ref.className='ref';ref.textContent=d.reference;
+      p.textContent='A confirmation email is on its way to '+d.email+'. If you don\u2019t see it in a few minutes, check your spam folder or call '+CONFIG.OFFICE_PHONE+'.';
+      n.appendChild(strong);n.appendChild(ref);n.appendChild(p);
+      $('#nextPrint').textContent='Optional: print this page or save it as a PDF for your own records.';
+    }else{
+      $('#doneTitle').textContent='Your acknowledgement is ready to print';
+      $('#doneSub').textContent='Prepared '+new Date().toLocaleString('en-US',{dateStyle:'long',timeStyle:'short'});
+      n.className='notice warn';
+      strong.textContent='Nothing has been sent yet';
+      p.textContent='Online submission isn\u2019t available right now. Print it or save it as a PDF and bring it to the Financial Aid Office at 3702 Estey Avenue, Naples, FL 34104.';
+      n.appendChild(strong);n.appendChild(p);
+      $('#nextPrint').textContent='Print this page or save it as a PDF, then give it to the Financial Aid Office at 3702 Estey Avenue, Naples, FL 34104.';
+    }
+    $('#doneDeadline').textContent=fmtDate(d.dropAddEnds);
+    form.style.display='none';
+    $('.hero').style.display='none';
+    $('.deadline').style.display='none';
+    $('#done').classList.add('show');
+    $('#done').focus();
+    window.scrollTo(0,0);
+  }
+
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    if(sending)return;
+    var r=validate();
+    var fe=$('#formError');
+    if(r.first){
+      fe.textContent='Some answers are missing or need a fix. Check the highlighted fields and try again.';
+      fe.classList.add('show');
+      r.first.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'center'});
+      try{r.first.focus({preventScroll:true})}catch(_){}
+      return;
+    }
+    fe.classList.remove('show');
+    if($('#website').value)return; // honeypot: bots fill this, people never see it
+
+    // Keep one reference per attempt chain so a retry can't create a duplicate record
+    window.__lwtcRef=window.__lwtcRef||makeRef();
+    var data=collect(window.__lwtcRef);
+
+    if(!LIVE){showDone(false,data);return}
+
+    var btn=$('#submitBtn'),st=$('#sendStatus');
+    sending=true;btn.disabled=true;btn.textContent='Submitting\u2026';
+    st.textContent='Submitting your form. Please keep this page open.';
+    var ctrl=('AbortController' in window)?new AbortController():null;
+    var timer=setTimeout(function(){if(ctrl)ctrl.abort()},CONFIG.TIMEOUT_MS);
+    fetch(CONFIG.SUBMIT_URL,{
+      method:'POST',
+      credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data),
+      signal:ctrl?ctrl.signal:undefined
+    }).then(function(res){
+      clearTimeout(timer);
+      return res.json().catch(function(){return {}}).then(function(j){
+        if(res.ok&&j&&j.ok){
+          if(j.reference)data.reference=j.reference;
+          st.textContent='';
+          showDone(true,data);
+          return;
+        }
+        var err=new Error('HTTP '+res.status);err.status=res.status;throw err;
+      });
+    }).catch(function(err){
+      clearTimeout(timer);
+      st.textContent='';
+      var msg;
+      if(err&&err.status===429)msg='Too many attempts from this connection. Wait a few minutes, then try again. ';
+      else if(err&&err.status===400)msg='Some of your answers weren\u2019t accepted. Check each section and try again. ';
+      else msg='We couldn\u2019t submit your form. Check your connection and try again. ';
+      fe.innerHTML='';
+      fe.appendChild(document.createTextNode(msg+'If it keeps failing, print your form and bring it to the Financial Aid Office, or call '+CONFIG.OFFICE_PHONE+'. '));
+      var pb=document.createElement('button');pb.type='button';pb.className='btn alt';pb.style.marginTop='12px';pb.textContent='Print instead';
+      pb.addEventListener('click',function(){showDone(false,data)});
+      fe.appendChild(document.createElement('br'));fe.appendChild(pb);
+      fe.classList.add('show');
+      try{fe.focus()}catch(_){}
+    }).then(function(){
+      sending=false;btn.disabled=false;btn.textContent='Submit to Financial Aid';
+    });
+  });
+
+  $('#editBtn').addEventListener('click',function(){
+    $('#done').classList.remove('show');
+    form.style.display='';
+    $('.hero').style.display='';
+    $('.deadline').style.display='';
+    window.scrollTo(0,0);
+  });
+  $('#printBtn').addEventListener('click',function(){window.print()});
+
+  if(LIVE)$('#submitBtn').textContent='Submit to Financial Aid';
+  update();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Financial Aid Submissions | Lorenzo Walker Technical College</title>
+<link rel="icon" type="image/png" href="../assets/fav.png">
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light;
+  --ink:#231F20;--paper:#FFFFFF;--surface:#F7F5F4;--line:#DDD8D6;--muted:#5D5557;--link:#2B6580;--error:#B3261E;--focus:#3A7B96;
+  --orange-a:#F58220;--orange-b:#F05A2B;--green-a:#BDD14F;--green-b:#6EA141;--gold-a:#FFC45A;--gold-b:#F9A03C;--blue-a:#54ADC3;--blue-b:#3A7B96;
+  --display:"Alfa Slab One","Clarendon Black",Rockwell,"Roboto Slab",Georgia,serif;
+  --text:"Source Sans 3","Source Sans Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{background:#fff;height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100%;background:#fff;color:var(--ink);font:400 16px/1.5 var(--text)}
+a{color:var(--link)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.bar{height:8px;display:flex}.bar i{flex:1}
+.h-orange{background:linear-gradient(90deg,var(--orange-a),var(--orange-b))}.h-green{background:linear-gradient(90deg,var(--green-a),var(--green-b))}.h-gold{background:linear-gradient(90deg,var(--gold-a),var(--gold-b))}.h-blue{background:linear-gradient(90deg,var(--blue-a),var(--blue-b))}
+.logo{display:block;width:200px;aspect-ratio:720/309;background:center/contain no-repeat url(../assets/lwtc-logo.png)}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;flex-wrap:wrap}
+.who{font-size:14px;color:var(--muted);text-align:right}.who strong{color:var(--ink)}
+h1{font:400 clamp(26px,4vw,38px)/1.1 var(--display);margin:8px 0 4px}
+.sub{margin:0 0 20px;color:var(--muted)}
+.banner{display:none;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-weight:600;border:2px solid #F9A03C;background:#FFF6E8}
+.banner.show{display:block}
+
+/* form tabs */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:2px solid var(--line);margin-bottom:16px}
+.tab{font:700 16px var(--text);background:transparent;color:var(--muted);border:0;border-bottom:4px solid transparent;margin-bottom:-2px;padding:10px 16px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.tab b{font:400 14px var(--display);background:var(--surface);border-radius:48px;padding:2px 10px;color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:#F37026}
+.tab:hover{color:var(--ink)}
+
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.stat{border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:48px;padding:7px 14px;font:600 15px var(--text);cursor:pointer;display:flex;gap:8px;align-items:center}
+.stat b{font:400 16px var(--display)}
+.stat[aria-pressed="true"]{border-color:var(--ink);background:var(--surface)}
+.tools{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end}
+.tools .grow{flex:1 1 260px;max-width:420px}
+.tools label{display:block;font-weight:700;font-size:13px;color:var(--muted);margin-bottom:2px}
+input[type=search],input[type=text],input[type=number],select,textarea{font:inherit;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:4px;padding:10px 12px;min-height:44px;width:100%}
+.btn{font:700 15px/1 var(--text);border:0;border-radius:48px;padding:13px 22px;min-height:44px;cursor:pointer;color:#231F20;background:linear-gradient(90deg,var(--orange-a),var(--orange-b))}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+.btn[disabled]{opacity:.6;cursor:progress}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;font-size:13px;color:var(--muted);padding:8px 12px;border-bottom:2px solid var(--line);white-space:nowrap}
+tbody td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr.item{cursor:pointer}tbody tr.item:hover{background:var(--surface)}
+tbody tr:focus-visible{outline-offset:-3px}
+tr.grouprow th{text-align:left;background:var(--surface);padding:12px;border-bottom:1px solid var(--line);border-top:2px solid var(--ink);font-weight:700}
+tr.grouprow .gname{font:400 18px var(--display);margin-right:12px}
+tr.grouprow .gmeta{font-weight:600;color:var(--muted);font-size:14px;margin-right:12px}
+.tablewrap{overflow-x:auto;border:2px solid var(--line);border-radius:12px}
+.pill{display:inline-block;border-radius:48px;padding:2px 12px;font-weight:700;font-size:13px;color:#231F20;white-space:nowrap}
+.s-New{background:linear-gradient(90deg,var(--orange-a),var(--orange-b))}.s-In-review{background:linear-gradient(90deg,var(--blue-a),var(--blue-b))}
+.s-Funding-on-file{background:linear-gradient(90deg,var(--green-a),var(--green-b))}.s-Balance-due{background:linear-gradient(90deg,var(--gold-a),var(--gold-b))}
+.s-Complete{background:var(--line);color:var(--ink)}
+.formtag{display:inline-block;border:2px solid var(--line);border-radius:4px;padding:0 8px;font-weight:700;font-size:13px;white-space:nowrap}
+.muted{color:var(--muted)}.empty{padding:40px 16px;text-align:center;color:var(--muted)}
+.mono{font-variant-numeric:tabular-nums}
+@media(max-width:760px){.hide-s{display:none}}
+
+dialog{width:min(720px,calc(100vw - 24px));max-height:calc(100vh - 24px);border:2px solid var(--ink);border-radius:12px;padding:0;background:#fff;color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.dhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.dhead h2{font:400 24px/1.1 var(--display);margin:0 0 4px}
+.dbody{padding:16px 20px;overflow:auto;max-height:calc(100vh - 220px)}
+dl.kv{display:grid;grid-template-columns:minmax(120px,170px) 1fr;margin:0 0 16px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+dl.kv dt,dl.kv dd{margin:0;padding:8px 12px;border-bottom:1px solid var(--line)}
+dl.kv dt{font-weight:700;font-size:14px;color:var(--muted);background:var(--surface)}
+dl.kv dd{overflow-wrap:anywhere;white-space:pre-wrap}
+dl.kv>:nth-last-child(-n+2){border-bottom:0}
+.review{background:var(--surface);border-radius:8px;padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.review label{display:block;font-weight:700;font-size:14px;margin-bottom:2px}
+.review .full{grid-column:1/-1}
+@media(max-width:560px){.review{grid-template-columns:1fr}dl.kv{grid-template-columns:1fr}}
+.dfoot{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:14px 20px;border-top:1px solid var(--line)}
+.msg{font-weight:600;min-height:1.4em}.msg.err{color:var(--error)}
+.reviewed{font-size:14px;color:var(--muted);margin:8px 0 0}
+@media print{
+  body *{visibility:hidden}
+  dialog,dialog *{visibility:visible}
+  dialog{position:absolute;inset:0;width:100%;max-height:none;border:0}
+  .dbody{max-height:none;overflow:visible}
+  .dfoot,.dhead .btn,.review{display:none!important}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="bar" aria-hidden="true"><i class="h-orange"></i><i class="h-green"></i><i class="h-gold"></i><i class="h-blue"></i></div>
+<div class="wrap">
+  <header class="top">
+    <a href="../" aria-label="Financial Aid home"><span class="logo" role="img" aria-label="Lorenzo Walker Technical College"></span></a>
+    <div class="who">Signed in as <strong id="me">…</strong><br><a href="../">Financial Aid home</a> &middot; <a href="/cdn-cgi/access/logout">Sign out</a></div>
+  </header>
+
+  <main>
+    <h1>Submissions</h1>
+    <p class="sub">Every Financial Aid form, newest first. Choose a form type, then select a row to review it and set its status.</p>
+
+    <div class="banner" id="banner" role="status"></div>
+
+    <div class="tabs" id="tabs" role="tablist" aria-label="Form type"></div>
+    <div class="stats" id="stats" role="group" aria-label="Filter by status"></div>
+    <div class="tools">
+      <div class="grow"><label for="q">Search</label><input type="search" id="q" placeholder="Name, student ID, reference, details"></div>
+      <div><label for="sort">Sort</label>
+        <select id="sort">
+          <option value="form-new">Form type, then newest</option>
+          <option value="form-name">Form type, then student A–Z</option>
+          <option value="new">Newest first</option>
+          <option value="old">Oldest first</option>
+          <option value="name">Student A–Z</option>
+          <option value="status">Status</option>
+        </select></div>
+      <button class="btn alt" id="refresh" type="button">Refresh</button>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr id="thead"></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="empty" id="empty" hidden></div>
+    </div>
+    <p class="muted" id="updated" style="font-size:14px;margin-top:12px"></p>
+  </main>
+</div>
+
+<dialog id="dlg" aria-labelledby="dTitle">
+  <div class="dhead">
+    <div><h2 id="dTitle"></h2><div class="muted" id="dRef"></div></div>
+    <button class="btn alt" id="dClose" type="button">Close</button>
+  </div>
+  <div class="dbody">
+    <dl class="kv" id="dFields"></dl>
+    <div class="review">
+      <div><label for="fStatus">Status</label><select id="fStatus"></select></div>
+      <div id="balWrap"><label for="fBal">Balance due ($)</label><input type="number" id="fBal" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="full"><label for="fNotes">Staff notes</label><textarea id="fNotes" rows="3" maxlength="2000"></textarea></div>
+    </div>
+    <p class="reviewed" id="dReviewed"></p>
+  </div>
+  <div class="dfoot">
+    <span class="msg" id="dMsg" role="status"></span>
+    <span style="display:flex;gap:10px"><button class="btn alt" id="dPrint" type="button">Print</button><button class="btn" id="dSave" type="button">Save changes</button></span>
+  </div>
+</dialog>
+
+<script>
+(function(){
+  var STATUSES=['New','In review','Funding on file','Balance due','Complete'];
+  var $=function(s){return document.querySelector(s)};
+  var forms=[];            // registry from the Worker: [{id,label,balanceDue}]
+  var items=[],formFilter='all',statusFilter='All',current=null,failures=0,timer=null,loading=false;
+
+  function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+  function slug(s){return String(s||'New').replace(/\s+/g,'-')}
+  function fmtD(v){if(!v)return '';var p=String(v).slice(0,10).split('-');if(p.length!==3)return v;return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+  function fmtDT(v){if(!v)return '';var d=new Date(v);return isNaN(d)?v:d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
+  function api(path,opts){
+    opts=opts||{};opts.credentials='same-origin';
+    return fetch(path,opts).then(function(r){
+      if(r.status===401||r.status===403){throw {auth:true}}
+      return r.json().then(function(j){if(!r.ok||j.ok===false)throw {status:r.status};return j});
+    });
+  }
+  function banner(msg){var b=$('#banner');b.textContent=msg||'';b.classList.toggle('show',!!msg)}
+  function st(i){return i.status||'New'}
+
+  /* ---- form types: every registered form, plus any type found in the data ---- */
+  function formKeys(){
+    var keys=forms.map(function(f){return f.id}),seen={};
+    keys.forEach(function(k){seen[k]=1});
+    var extra=[];
+    items.forEach(function(i){var k=i.formType||'';if(!seen[k]){seen[k]=1;extra.push(k)}});
+    extra.sort();
+    return keys.concat(extra);
+  }
+  function formInfo(key){
+    for(var n=0;n<forms.length;n++)if(forms[n].id===key)return forms[n];
+    var sample=items.filter(function(i){return (i.formType||'')===key})[0];
+    return {id:key,label:(sample&&sample.formLabel)||key||'Unspecified',balanceDue:false};
+  }
+  function inScopeForm(i){return formFilter==='all'||(i.formType||'')===formFilter}
+
+  function renderTabs(){
+    var box=$('#tabs');box.innerHTML='';
+    function tab(key,label,count){
+      var b=el('button','tab');b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-selected',String(formFilter===key));
+      b.appendChild(el('span',null,label));b.appendChild(el('b',null,String(count)));
+      b.addEventListener('click',function(){formFilter=key;statusFilter='All';render()});
+      box.appendChild(b);
+    }
+    tab('all','All forms',items.length);
+    formKeys().forEach(function(k){
+      tab(k,formInfo(k).label,items.filter(function(i){return (i.formType||'')===k}).length);
+    });
+  }
+  function renderStats(){
+    var scope=items.filter(inScopeForm),box=$('#stats');box.innerHTML='';
+    ['All'].concat(STATUSES).forEach(function(s){
+      var n=s==='All'?scope.length:scope.filter(function(i){return st(i)===s}).length;
+      var b=el('button','stat');b.type='button';b.setAttribute('aria-pressed',String(statusFilter===s));
+      b.appendChild(el('span',null,s));b.appendChild(el('b',null,String(n)));
+      b.addEventListener('click',function(){statusFilter=s;render()});box.appendChild(b);
+    });
+  }
+
+  /* ---- filtering and sorting ---- */
+  function haystack(i){return [i.studentName,i.studentId,i.reference,i.email,i.summary,i.formLabel].concat((i.details||[]).map(function(d){return d.value})).join(' ').toLowerCase()}
+  function visible(){
+    var q=$('#q').value.trim().toLowerCase();
+    return items.filter(function(i){
+      if(!inScopeForm(i))return false;
+      if(statusFilter!=='All'&&st(i)!==statusFilter)return false;
+      return !q||haystack(i).indexOf(q)>-1;
+    });
+  }
+  function byNewest(a,b){return String(b.submitted).localeCompare(String(a.submitted))}
+  function byOldest(a,b){return String(a.submitted).localeCompare(String(b.submitted))}
+  function byName(a,b){return String(a.studentName).localeCompare(String(b.studentName),'en',{sensitivity:'base'})||byNewest(a,b)}
+  function byStatus(a,b){return STATUSES.indexOf(st(a))-STATUSES.indexOf(st(b))||byNewest(a,b)}
+  var SORTS={'form-new':byNewest,'form-name':byName,'new':byNewest,'old':byOldest,'name':byName,'status':byStatus};
+
+  function render(){
+    renderTabs();renderStats();
+    var mode=$('#sort').value,grouped=mode.indexOf('form-')===0;
+    var list=visible().sort(SORTS[mode]);
+    var showFormCol=!grouped&&formFilter==='all';
+    var th=$('#thead');th.innerHTML='';
+    [['Submitted',''],['Student',''],showFormCol?['Form','']:null,['Details','hide-s'],['Status','']].forEach(function(c){
+      if(!c)return;var h=el('th',c[1],c[0]);th.appendChild(h);
+    });
+    var cols=th.children.length,tb=$('#rows');tb.innerHTML='';
+
+    function addRow(i){
+      var tr=document.createElement('tr');tr.className='item';tr.tabIndex=0;tr.setAttribute('role','button');
+      tr.setAttribute('aria-label','Review '+i.studentName+', '+i.formLabel);
+      tr.appendChild(el('td','mono',fmtDT(i.submitted)));
+      var c2=el('td');c2.appendChild(el('strong',null,i.studentName||''));c2.appendChild(el('div','muted',(i.studentId||'')+' \u00b7 '+(i.reference||'')));tr.appendChild(c2);
+      if(showFormCol){var cf=el('td');cf.appendChild(el('span','formtag',i.formLabel));tr.appendChild(cf)}
+      tr.appendChild(el('td','hide-s',i.summary||''));
+      var c6=el('td');c6.appendChild(el('span','pill s-'+slug(st(i)),st(i)));tr.appendChild(c6);
+      tr.addEventListener('click',function(){openItem(i)});
+      tr.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();openItem(i)}});
+      tb.appendChild(tr);
+    }
+
+    if(grouped&&formFilter==='all'){
+      formKeys().forEach(function(k){
+        var g=list.filter(function(i){return (i.formType||'')===k});
+        if(!g.length)return;
+        var tr=document.createElement('tr');tr.className='grouprow';
+        var h=document.createElement('th');h.colSpan=cols;h.scope='colgroup';
+        h.appendChild(el('span','gname',formInfo(k).label));
+        h.appendChild(el('span','gmeta',g.length+(g.length===1?' submission':' submissions')));
+        var nNew=g.filter(function(i){return st(i)==='New'}).length;
+        if(nNew)h.appendChild(el('span','gmeta',nNew+' new'));
+        tr.appendChild(h);tb.appendChild(tr);
+        g.forEach(addRow);
+      });
+    }else list.forEach(addRow);
+
+    var em=$('#empty');em.hidden=list.length>0;
+    em.textContent=items.length?'No submissions match these filters.':'No submissions yet.';
+  }
+
+  function load(manual){
+    if(loading)return;loading=true;
+    if(manual)$('#refresh').disabled=true;
+    api('/api/staff/submissions').then(function(j){
+      failures=0;banner('');items=j.items||[];render();
+      $('#updated').textContent='Updated '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'. Refreshes automatically every minute.';
+    }).catch(function(e){
+      if(e&&e.auth){banner('Your sign-in expired. Reload the page to sign in again.');return}
+      failures++;banner('Reconnecting\u2026 showing the last data we received.');
+    }).then(function(){loading=false;$('#refresh').disabled=false;schedule()});
+  }
+  function schedule(){clearTimeout(timer);var wait=Math.min(60000*Math.pow(2,failures),300000);timer=setTimeout(function(){if(document.visibilityState==='visible'&&!$('#dlg').open)load();else schedule()},wait)}
+
+  function openItem(i){
+    current=i;var info=formInfo(i.formType||'');
+    $('#dTitle').textContent=i.studentName||'';
+    $('#dRef').textContent=i.formLabel+' \u00b7 '+(i.reference||'')+' \u00b7 submitted '+fmtDT(i.submitted);
+    var f=$('#dFields');f.innerHTML='';
+    var rows=[['Student ID',i.studentId],['Phone',i.phone],['Email',i.email]].concat((i.details||[]).map(function(d){return [d.label,d.value]}));
+    rows.forEach(function(r){f.appendChild(el('dt',null,r[0]));f.appendChild(el('dd',null,r[1]||'\u2014'))});
+    var sel=$('#fStatus');sel.innerHTML='';
+    STATUSES.forEach(function(s){var o=el('option',null,s);o.value=s;sel.appendChild(o)});
+    sel.value=st(i);
+    $('#balWrap').hidden=!info.balanceDue;
+    $('#fBal').value=(i.balanceDue===''||i.balanceDue==null)?'':i.balanceDue;
+    $('#fNotes').value=i.staffNotes||'';
+    $('#dReviewed').textContent=i.reviewedBy?('Last reviewed by '+i.reviewedBy+(i.reviewedAt?' on '+fmtDT(i.reviewedAt):'')+'.'):'Not reviewed yet.';
+    setMsg('');$('#dlg').showModal();
+  }
+  function setMsg(t,err){var m=$('#dMsg');m.textContent=t||'';m.classList.toggle('err',!!err)}
+
+  $('#dClose').addEventListener('click',function(){$('#dlg').close()});
+  $('#dPrint').addEventListener('click',function(){window.print()});
+  $('#dSave').addEventListener('click',function(){
+    if(!current)return;
+    var btn=$('#dSave');btn.disabled=true;setMsg('Saving\u2026');
+    var body={id:current.id,status:$('#fStatus').value,balanceDue:$('#balWrap').hidden?'':$('#fBal').value,staffNotes:$('#fNotes').value};
+    api('/api/staff/status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(){
+      current.status=body.status;current.balanceDue=body.balanceDue;current.staffNotes=body.staffNotes;
+      current.reviewedBy=$('#me').textContent;current.reviewedAt=new Date().toISOString();
+      render();setMsg('Saved.');
+      $('#dReviewed').textContent='Last reviewed by '+current.reviewedBy+' just now.';
+    }).catch(function(e){
+      setMsg(e&&e.auth?'Your sign-in expired. Reload the page.':'Couldn\u2019t save. Try again.',true);
+    }).then(function(){btn.disabled=false});
+  });
+  $('#refresh').addEventListener('click',function(){load(true)});
+  $('#q').addEventListener('input',render);
+  $('#sort').addEventListener('change',render);
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&!loading)load()});
+
+  api('/api/staff/me').then(function(j){$('#me').textContent=j.email}).catch(function(){$('#me').textContent='unknown'});
+  api('/api/staff/forms').then(function(j){forms=j.forms||[];render()}).catch(function(){}).then(function(){load()});
+})();
+</script>
+</body>
+</html>
