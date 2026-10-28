@@ -7,14 +7,10 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Financial Aid Submissions | Lorenzo Walker Technical College</title>
 <link rel="icon" type="image/png" href="../assets/fav.png">
+<link rel="stylesheet" href="../assets/brand-fonts.css?v=20261028">
+<link rel="stylesheet" href="../assets/print-sheet.css?v=20261028">
 
 <style>
-@font-face{font-family:"Alfa Slab One";font-style:normal;font-weight:400;font-display:swap;src:url(../assets/fonts/alfa-slab-one-400.woff2) format("woff2")}
-@font-face{font-family:"Source Sans 3";font-style:normal;font-weight:400;font-display:swap;src:url(../assets/fonts/source-sans-3-400.woff2) format("woff2")}
-@font-face{font-family:"Source Sans 3";font-style:italic;font-weight:400;font-display:swap;src:url(../assets/fonts/source-sans-3-400i.woff2) format("woff2")}
-@font-face{font-family:"Source Sans 3";font-style:normal;font-weight:600;font-display:swap;src:url(../assets/fonts/source-sans-3-600.woff2) format("woff2")}
-@font-face{font-family:"Source Sans 3";font-style:italic;font-weight:600;font-display:swap;src:url(../assets/fonts/source-sans-3-600i.woff2) format("woff2")}
-@font-face{font-family:"Source Sans 3";font-style:normal;font-weight:700;font-display:swap;src:url(../assets/fonts/source-sans-3-700.woff2) format("woff2")}
 :root{
   color-scheme:light;
   --ink:#231F20;--paper:#FFFFFF;--surface:#F7F5F4;--line:#DDD8D6;--muted:#5D5557;--link:#2B6580;--error:#B3261E;--focus:#3A7B96;
@@ -109,10 +105,8 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
 .msg{font-weight:600;min-height:1.4em}.msg.err{color:var(--error)}
 .reviewed{font-size:14px;color:var(--muted);margin:8px 0 0}
 /* ---- Printing ----
-   Forms with a print layout print as the paper document (#printSheet), in the LWTC brand:
-   ink #231F20 text, the four hue gradients as large fields only, Alfa Slab One headlines,
-   Source Sans 3 text, speech-bubble shapes. Anything else prints the open detail window. */
-#printSheet{display:none}
+   Forms with a paper layout print through assets/print-sheet.css (the .print-sheet mode).
+   Anything else prints the open detail window, as below. */
 @media print{
   body:not(.print-sheet)>.bar,body:not(.print-sheet)>.wrap{display:none!important}
   body:not(.print-sheet) *{visibility:hidden}
@@ -121,101 +115,7 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
   body:not(.print-sheet) dialog::backdrop{background:none;display:none}
   body:not(.print-sheet) .dbody{max-height:none;overflow:visible}
   body:not(.print-sheet) .dfoot,body:not(.print-sheet) .dhead .btn,body:not(.print-sheet) .review{display:none!important}
-
-  @page{size:letter;margin:0.35in 0.5in 0.5in}
-  body.print-sheet{margin:0;background:#fff}
-  body.print-sheet>.bar,body.print-sheet>.wrap,body.print-sheet>dialog{display:none!important}
-  body.print-sheet #printSheet{display:block}
 }
-#printSheet{width:7.5in;font-family:"Source Sans 3","Source Sans Pro",system-ui,"Segoe UI",Arial,sans-serif;color:#231F20;font-size:9pt;line-height:1.3;-webkit-print-color-adjust:exact;print-color-adjust:exact;
-  --ink:#231F20;--muted:#5D5557;--line:#DDD8D6;--surface:#F7F5F4;
-  --orange:linear-gradient(90deg,#F58220,#F05A2B);--green:linear-gradient(90deg,#BDD14F,#6EA141);--gold:linear-gradient(90deg,#FFC45A,#F9A03C);--blue:linear-gradient(90deg,#54ADC3,#3A7B96)}
-#printSheet *{box-sizing:border-box}
-#printSheet h1,#printSheet h3,#printSheet h4,#printSheet h5,#printSheet h6,#printSheet .slab{font-family:"Alfa Slab One","Clarendon Black",Rockwell,"Roboto Slab",Georgia,serif;font-weight:400;letter-spacing:0}
-#printSheet .pp{height:10.02in;position:relative;overflow:hidden;break-after:page;page-break-after:always}
-#printSheet .pp:last-child{break-after:auto;page-break-after:auto}
-#printSheet .o{--g:var(--orange)}#printSheet .gr{--g:var(--green)}#printSheet .go{--g:var(--gold)}#printSheet .bl{--g:var(--blue)}
-/* speech bubbles: a circle with one square corner */
-#printSheet .bub{background:var(--g);color:var(--ink);border-radius:50%;border-bottom-left-radius:0;display:inline-flex;align-items:center;justify-content:center;flex:none;font-weight:700}
-#printSheet .bub.tr{border-radius:50%;border-bottom-right-radius:0}
-#printSheet .bub.br{border-radius:50%;border-top-left-radius:0}
-#printSheet .bub.tl{border-radius:50%;border-top-right-radius:0}
-
-#printSheet .p-head{display:flex;justify-content:space-between;align-items:flex-start;height:.92in}
-#printSheet .p-logo{width:1.85in;height:.76in;object-fit:contain;object-position:left center;margin-top:.08in}
-#printSheet .p-office{background:var(--ink);color:#fff;width:3.45in;height:.92in;padding:.2in .22in 0 0;text-align:right}
-#printSheet .p-office b{display:block;font-size:10.5pt;font-weight:700;margin-bottom:2pt}
-#printSheet .p-office span{display:block;font-size:8.4pt;line-height:1.4}
-#printSheet .p-rule{display:flex;height:4pt}
-#printSheet .p-rule i{flex:1}
-#printSheet .p-rule i:nth-child(1){background:var(--orange)}#printSheet .p-rule i:nth-child(2){background:var(--green)}#printSheet .p-rule i:nth-child(3){background:var(--gold)}#printSheet .p-rule i:nth-child(4){background:var(--blue)}
-#printSheet .p-title{font-size:15.5pt;line-height:1.12;margin:7pt 0 1pt}
-#printSheet .p-sub{font-size:10.5pt;font-weight:700;margin:0 0 5pt}
-#printSheet .p-deadline{background:var(--orange);border-radius:9pt;padding:6pt 12pt 7pt;margin-bottom:2pt}
-#printSheet .p-deadline h4{margin:0 0 2pt;font-size:10.5pt;line-height:1.2}
-#printSheet .p-deadline p{margin:0 0 5pt;font-size:9pt;line-height:1.32}
-#printSheet .p-terms{font-weight:700;font-size:9.4pt;display:flex;gap:16pt;flex-wrap:wrap;align-items:center}
-#printSheet .p-terms div{display:flex;align-items:center;gap:5pt}
-#printSheet .p-terms .u{display:inline-block;min-width:1.65in;min-height:15pt;background:#fff;border-radius:3pt;padding:1.5pt 6pt;font-weight:600}
-
-#printSheet .p-h{display:flex;align-items:center;gap:7pt;border-bottom:2pt solid var(--ink);padding-bottom:3pt;margin:8pt 0 4pt}
-#printSheet .p-h .bub{width:17pt;height:17pt;font-size:10pt}
-#printSheet .p-h h3{margin:0;font-size:11.5pt;line-height:1.2}
-#printSheet .p-intro{margin:0 0 4pt;color:var(--muted);font-size:8.3pt}
-
-#printSheet .p-row{display:grid;border-bottom:.6pt solid var(--muted);min-height:.36in}
-#printSheet .r1,#printSheet .r3{grid-template-columns:5in 2.5in}
-#printSheet .r2{grid-template-columns:2.5in 5in}
-#printSheet .p-cell{padding:2pt 5pt 1pt 6pt;min-width:0}
-#printSheet .p-lab{display:block;font-size:8pt;font-weight:700;color:var(--muted)}
-#printSheet .p-val{display:block;font-size:10.5pt;font-weight:600;min-height:12pt;padding-top:0;overflow-wrap:anywhere}
-
-#printSheet .p-cards{display:grid;grid-template-columns:1fr 1fr;gap:4pt 14pt}
-#printSheet .p-card{background:var(--surface);border-radius:4pt;overflow:hidden;padding:0 9pt 5pt;font-size:8.3pt;line-height:1.27}
-#printSheet .p-card::before{content:"";display:block;height:3.5pt;margin:0 -9pt 4pt;background:var(--g)}
-#printSheet .p-card h5{display:flex;align-items:center;gap:6pt;margin:0 0 3pt;font-family:"Source Sans 3","Source Sans Pro",system-ui,Arial,sans-serif;font-size:9.6pt;font-weight:700;line-height:1.2}
-#printSheet .p-card h5 .bub{width:13pt;height:13pt;font-size:8pt}
-#printSheet .p-card p{margin:0 0 2pt}
-#printSheet .p-card a{color:var(--ink);text-decoration:underline;text-underline-offset:1.5pt}
-#printSheet .p-card ul{margin:1pt 0 0;padding-left:14pt}
-#printSheet .p-card .wq{display:flex;gap:8pt;align-items:flex-start}
-#printSheet .p-card .wq>div:first-child{flex:1;min-width:0}
-#printSheet .p-qr{width:.74in;flex:none;display:flex;flex-direction:column;align-items:center;gap:2pt;margin-top:1pt}
-#printSheet .p-qr img{width:.6in;height:.6in;display:block}
-#printSheet .p-qr i{color:var(--muted);font-size:6.6pt;text-align:center;line-height:1.15}
-
-#printSheet .p-checks{display:grid;grid-template-columns:1fr 1fr;gap:0 16pt;padding:0 4pt;font-size:9.8pt;font-weight:700}
-#printSheet .p-checks div{margin-bottom:8pt;display:flex;align-items:center;gap:5pt;flex-wrap:wrap}
-#printSheet .p-checks .fa b{margin-right:3pt}
-#printSheet .p-checks .fa span{font-weight:400;display:inline-flex;align-items:center;gap:4pt;margin-right:4pt}
-#printSheet .cb{display:inline-block;flex:none;width:9.5pt;height:9.5pt;border:1.2pt solid var(--ink);border-radius:1.5pt;position:relative;background:#fff}
-#printSheet .cb.on::after{content:"";position:absolute;left:2.4pt;top:-.6pt;width:3.4pt;height:6.8pt;border:solid var(--ink);border-width:0 1.7pt 1.7pt 0;transform:rotate(45deg)}
-#printSheet .p-other{padding:4pt 4pt 0;font-size:9.8pt;font-weight:700;display:flex;align-items:center;gap:5pt}
-#printSheet .p-other .u{flex:1;border-bottom:1pt solid var(--ink);font-weight:600;min-height:14pt;padding:0 3pt}
-
-#printSheet .p-ack{border:1pt solid var(--ink);border-bottom:0;border-radius:4pt 4pt 0 0;overflow:hidden}
-#printSheet .p-ar{display:grid;grid-template-columns:.34in 1fr 1.45in;border-bottom:1pt solid var(--ink);min-height:.44in}
-#printSheet .p-an{background:var(--g);color:var(--ink);font-weight:700;font-size:10.5pt;display:flex;align-items:center;justify-content:center}
-#printSheet .p-at{padding:5pt 9pt;font-size:9.3pt;line-height:1.33;display:flex;align-items:center}
-#printSheet .p-ai{border-left:1pt solid var(--ink);position:relative;text-align:center}
-#printSheet .p-ai small{position:absolute;top:3pt;left:0;right:0;font-size:7.2pt;font-weight:700;color:var(--muted)}
-#printSheet .p-ai b{display:block;margin-top:12pt;font-size:13pt;font-weight:700;letter-spacing:1pt}
-#printSheet .p-agree{margin:10pt 0 4pt;font-size:9.4pt;font-weight:700}
-#printSheet .p-sig{display:grid;grid-template-columns:5in 2.5in}
-#printSheet .p-sig.one{grid-template-columns:5in}
-#printSheet .p-sc{padding:0;min-width:0}
-#printSheet .p-sv{height:.42in;border-bottom:1pt solid var(--ink);display:flex;align-items:flex-end;padding:0 4pt 2pt;font-size:11.5pt;font-weight:600;overflow:hidden;white-space:nowrap;margin-right:8pt}
-#printSheet .p-sv.sig{font-style:italic;font-weight:600;font-size:15pt}
-#printSheet .p-sl{display:block;font-size:8pt;font-weight:700;color:var(--muted);padding:3pt 0 0 4pt;margin-bottom:6pt}
-
-#printSheet .p-office-use{border:1pt dashed var(--muted);border-radius:9pt;padding:8pt 12pt;margin-top:12pt}
-#printSheet .p-office-use h6{margin:0 0 7pt;font-size:10pt;line-height:1.2}
-#printSheet .p-oline{display:flex;align-items:center;gap:6pt;flex-wrap:wrap;font-size:9.4pt;margin-bottom:7pt}
-#printSheet .p-oline:last-child{margin-bottom:0}
-#printSheet .p-oline .gap{width:14pt}
-#printSheet .p-oline .u{display:inline-block;min-width:1.3in;border-bottom:1pt solid var(--ink);font-weight:600;padding:0 3pt;min-height:12pt}
-#printSheet .p-oline .u.wide{min-width:2.6in}
-#printSheet .p-foot{position:absolute;left:0;right:0;bottom:0;border-top:.75pt solid var(--line);padding-top:4pt;font-size:7.6pt;color:var(--muted);display:flex;justify-content:space-between;gap:12pt}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -281,82 +181,7 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
 </dialog>
 
 
-<div id="printSheet" aria-hidden="true">
-  <!-- PAGE 1 -->
-  <section class="pp">
-    <div class="p-head">
-      <img class="p-logo" src="../assets/lwtc-logo.png" alt="">
-      <div class="p-office"><b>Financial Aid Office</b><span>3702 Estey Avenue, Naples, FL 34104</span><span>239-377-0900 &nbsp;&middot;&nbsp; Mon&ndash;Fri, 7:00 a.m.&ndash;3:00 p.m.</span></div>
-    </div>
-    <div class="p-rule"><i></i><i></i><i></i><i></i></div>
-    <h1 class="p-title">Financial options &amp; payment responsibility</h1>
-    <p class="p-sub">Student Acknowledgement Form</p>
-    <div class="p-deadline">
-      <h4>Payment deadline: end of drop/add</h4>
-      <p>All outstanding <b>tuition, laboratory fees, and user fees</b> must be paid in full &mdash; or covered by an approved funding source on file with the Financial Aid Office &mdash; <b>by the end of the drop/add period</b> for each term of enrollment.</p>
-      <div class="p-terms"><div>Term: <span class="u" data-f="term"></span></div><div>Drop/add period ends: <span class="u" data-f="dropAddEnds"></span></div></div>
-    </div>
-
-    <div class="p-h o"><span class="bub">1</span><h3>Student information</h3></div>
-    <div class="p-row r1"><div class="p-cell"><span class="p-lab">Full legal name</span><span class="p-val" data-f="studentName"></span></div><div class="p-cell"><span class="p-lab">Student ID #</span><span class="p-val" data-f="studentId"></span></div></div>
-    <div class="p-row r2"><div class="p-cell"><span class="p-lab">Phone number</span><span class="p-val" data-f="phone"></span></div><div class="p-cell"><span class="p-lab">Email address</span><span class="p-val" data-f="email"></span></div></div>
-    <div class="p-row r3"><div class="p-cell"><span class="p-lab">Program of study</span><span class="p-val" data-f="program"></span></div><div class="p-cell"><span class="p-lab">Anticipated start date</span><span class="p-val" data-f="startDate"></span></div></div>
-
-    <div class="p-h gr"><span class="bub tr">2</span><h3>Financial aid &amp; assistance options</h3></div>
-    <p class="p-intro">Please review the funding options below. Students are encouraged to apply for all options for which they may be eligible <i>before</i> the start of the term so that funding is in place by the drop/add deadline.</p>
-    <div class="p-cards">
-      <div class="p-card o"><h5><span class="bub">A</span>Federal Student Aid (FAFSA)</h5><p>Apply at <a href="https://studentaid.gov">studentaid.gov</a>. The FAFSA determines eligibility for the Federal Pell Grant.</p><p>LWTC School Code: <b>013234</b></p></div>
-      <div class="p-card gr"><h5><span class="bub tr">B</span>CareerSource Southwest Florida</h5><p>Tuition assistance and workforce grants (WIOA) for eligible job seekers in Southwest Florida.</p><p><a href="https://careersourcesouthwestflorida.com/">careersourcesouthwestflorida.com</a></p></div>
-      <div class="p-card go"><h5><span class="bub br">C</span>Collier Community Foundation</h5><div class="wq"><div><p>Donor-established scholarships, including several for technical and vocational students, through one common online application.</p><p>Apply at: <a href="https://colliercf.org">colliercf.org</a></p></div><div class="p-qr"><img src="../assets/qr-collier.svg" alt=""><i>Scan to apply on your phone</i></div></div></div>
-      <div class="p-card bl"><h5><span class="bub tl">D</span>LWTC Institutional Scholarships &amp; Assistance</h5><div class="wq"><div><p>Institutional scholarships and Workforce Development Assistance (WDA) based on need, academic standing, and program requirements. Ask Financial Aid about current cycles.</p><p>Apply at: <a href="https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=SjyUWVNiDU2KmP71AwPTS46f9pBak6FGqxzqYowUBWJUNE1MRlFFMTVRR01PQVFHVzdSQzVVNzFXQS4u"><b>LWTC Internal Scholarship Application</b></a></p></div><div class="p-qr"><img src="../assets/qr-internal.svg" alt=""><i>Scan to apply on your phone</i></div></div></div>
-      <div class="p-card o"><h5><span class="bub">E</span>Florida Bright Futures Scholarship</h5><p>Florida high school graduates who meet academic, test score, and service hour requirements &mdash; including Gold Seal Vocational and Gold Seal CAPE Scholars &mdash; Please provide to the financial aid office: award confirmation</p></div>
-      <div class="p-card gr"><h5><span class="bub tr">F</span>Learn 2 Earn Charitable Foundation</h5><p>Scholarships plus mentorship and success coaching for students pursuing career, technical, and trade certifications.</p><p>Apply at: <a href="https://learn2earnscholarship.org/">learn2earnscholarship.org</a></p></div>
-      <div class="p-card go"><h5><span class="bub br">G</span>Veterans Affairs (VA) Education Benefits</h5><p>Veterans, service members, and eligible dependents may use VA education benefits</p><p>Please provide to the Financial Aid Office:</p><ul><li>DD-214 (Certificate of Discharge from Active Duty)</li><li>Certificate of Eligibility (COE) from the VA</li></ul></div>
-      <div class="p-card bl"><h5><span class="bub tl">H</span>Florida Vocational Rehabilitation (VR)</h5><p>Possible financial support and career services for individuals with physical, mental, or learning disabilities to prepare for, gain, or retain employment.</p><p><a href="https://rehabworks.org/">https://rehabworks.org/</a></p></div>
-    </div>
-    <div class="p-foot"><span>Lorenzo Walker Technical College &nbsp;&middot;&nbsp; Financial Aid Office &nbsp;&middot;&nbsp; Rev. 10/2026</span><span data-f="submissionNote"></span><span>Page 1 of 2</span></div>
-  </section>
-
-  <!-- PAGE 2 -->
-  <section class="pp">
-    <div class="p-h go" style="margin-top:2pt"><span class="bub br">3</span><h3>Anticipated funding plan &nbsp;(check all that apply)</h3></div>
-    <div class="p-checks">
-      <div class="fa"><b>FAFSA</b> <span><i class="cb" data-fafsa="I applied"></i> I applied</span><span><i class="cb" data-fafsa="I will apply"></i> I will apply</span><span><i class="cb" data-fafsa="I will not apply"></i> I will not apply</span></div>
-      <div><i class="cb" data-src="Collier Community Foundation Scholarship"></i> Collier Community Foundation Scholarship</div>
-      <div><i class="cb" data-src="CareerSource Southwest Florida"></i> CareerSource Southwest Florida</div>
-      <div><i class="cb" data-src="Learn 2 Earn Scholarship"></i> Learn 2 Earn Scholarship</div>
-      <div><i class="cb" data-src="VA Education Benefits"></i> VA Education Benefits</div>
-      <div><i class="cb" data-src="LWTC Institutional Scholarship / WDA"></i> LWTC Institutional Scholarship / WDA</div>
-      <div><i class="cb" data-src="Vocational Rehabilitation"></i> Vocational Rehabilitation</div>
-      <div><i class="cb" data-src="Florida Prepaid Plan"></i> Florida Prepaid Plan</div>
-      <div><i class="cb" data-src="Bright Futures Scholarship"></i> Bright Futures Scholarship</div>
-      <div><i class="cb" data-src="Self-Pay / Out-of-Pocket"></i> Self-Pay / Out-of-Pocket</div>
-    </div>
-    <div class="p-other"><i class="cb" data-src="Other"></i> Other: <span class="u" data-f="otherFunding"></span></div>
-
-    <div class="p-h bl"><span class="bub tl">4</span><h3>Financial responsibility acknowledgement</h3></div>
-    <p class="p-intro">Please read each statement and initial to confirm your understanding.</p>
-    <div class="p-ack">
-      <div class="p-ar o"><div class="p-an">1</div><div class="p-at"><span>I understand that <b>all outstanding tuition, laboratory fees, and user fees are due in full by the end of the drop/add period</b> for each term in which I am enrolled.</span></div><div class="p-ai"><small>Initials</small><b data-init="0"></b></div></div>
-      <div class="p-ar gr"><div class="p-an">2</div><div class="p-at"><span>I understand that third-party funding (FAFSA/Pell, grants, VA benefits, Vocational Rehabilitation, CareerSource, and scholarships) is subject to approval and eligibility, and that <b>approval or authorization must be on file with the Financial Aid Office by the end of the drop/add period</b> to be applied toward my balance.</span></div><div class="p-ai"><small>Initials</small><b data-init="1"></b></div></div>
-      <div class="p-ar go"><div class="p-an">3</div><div class="p-at"><span>I understand that I am <b>ultimately and fully responsible</b> for all tuition, fees, books, and supply expenses incurred during my enrollment.</span></div><div class="p-ai"><small>Initials</small><b data-init="2"></b></div></div>
-      <div class="p-ar bl"><div class="p-an">4</div><div class="p-at"><span>If any expected funding is delayed, reduced, canceled, or insufficient to cover my total balance, <b>I agree to pay the remaining balance</b> by the deadline above, in accordance with LWTC&rsquo;s payment policy.</span></div><div class="p-ai"><small>Initials</small><b data-init="3"></b></div></div>
-      <div class="p-ar o"><div class="p-an">5</div><div class="p-at"><span>I understand that an unpaid balance after the drop/add period may result in my <b>withdrawal from class</b> and/or a hold on my records, transcripts, or certificate until the balance is paid.</span></div><div class="p-ai"><small>Initials</small><b data-init="4"></b></div></div>
-    </div>
-    <p class="p-agree">By signing below, I confirm that I have read and understand this form and agree to its terms.</p>
-    <div class="p-sig" style="margin-top:14pt"><div class="p-sc"><div class="p-sv sig" data-f="signature"></div><span class="p-sl">Student signature</span></div><div class="p-sc"><div class="p-sv" data-f="signatureDate"></div><span class="p-sl">Date</span></div></div>
-    <div class="p-sig one"><div class="p-sc"><div class="p-sv" data-f="printedName"></div><span class="p-sl">Printed name</span></div></div>
-    <div class="p-sig"><div class="p-sc"><div class="p-sv sig" data-f="guardianSignature"></div><span class="p-sl">Parent / guardian signature (if student is under 18)</span></div><div class="p-sc"><div class="p-sv" data-f="guardianDate"></div><span class="p-sl">Date</span></div></div>
-
-    <div class="p-office-use">
-      <h6>For Financial Aid Office use only</h6>
-      <div class="p-oline">Funding documentation on file: <i class="cb" id="ps-docYes"></i> Yes <i class="cb"></i> Pending <i class="cb"></i> N/A <span class="gap"></span> Balance due at drop/add: $<span class="u" data-f="balanceDue"></span></div>
-      <div class="p-oline">Reviewed by: <span class="u wide" data-f="reviewedBy"></span> <span class="gap"></span> Date: <span class="u" data-f="reviewedAt"></span> <span class="gap"></span> Entered in Focus: <i class="cb"></i></div>
-    </div>
-    <div class="p-foot"><span>Lorenzo Walker Technical College &nbsp;&middot;&nbsp; Financial Aid Office &nbsp;&middot;&nbsp; Rev. 10/2026</span><span data-f="submissionNote"></span><span>Page 2 of 2</span></div>
-  </section>
-</div>
-
+<script src="../assets/print-sheet.js?v=20261028"></script>
 <script>
 (function(){
   var STATUSES=['New','In review','Funding on file','Balance due','Complete'];
@@ -609,57 +434,42 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
   $('#dClose').addEventListener('click',function(){if(changedKeys().length&&!window.confirm('Discard your unsaved changes?'))return;$('#dlg').close()});
 
   /* ---- Print: the paper document ----
-     Forms listed in PRINTERS print as the Financial Aid document, filled in with the saved values.
-     Other forms print the detail window as before. */
+     Financial Responsibility submissions print as the Financial Aid form (assets/print-sheet.js),
+     filled in with the saved values. Anything else prints the detail window. */
   var PRINTERS={'financial-responsibility':true};
   function sheetValues(i){
-    var map={};(i.fields||[]).forEach(function(f){if(f.key)map[f.key]=f.value});
-    return map;
+    var m={};(i.fields||[]).forEach(function(f){if(f.key)m[f.key]=f.value});
+    return {
+      term:m.term,dropAddEnds:m.dropAddEnds,
+      studentName:m.studentName||i.studentName,studentId:m.studentId||i.studentId,phone:m.phone||i.phone,email:m.email||i.email,
+      program:m.program,startDate:m.startDate,
+      fafsaStatus:m.fafsaStatus,fundingSources:Array.isArray(m.fundingSources)?m.fundingSources:[],otherFunding:m.otherFunding,
+      initials:String(m.initials||'').split(',').map(function(x){return x.trim()}),
+      signature:m.signature,signatureDate:m.signatureDate,printedName:m.printedName,
+      under18:String(m.under18||'').toLowerCase()==='yes',guardianSignature:m.guardianSignature,guardianDate:m.guardianDate,
+      // Office-use box: only what the console already knows. The rest is left for staff to complete by hand.
+      office:{docOnFile:st(i)==='Funding on file',balanceDue:(i.balanceDue===''||i.balanceDue==null)?'':Number(i.balanceDue).toFixed(2),reviewedBy:i.reviewedBy||'',reviewedAt:i.reviewedAt||''}
+    };
   }
-  function pDate(v){return v?fmtD(v):''}
-  function fillSheet(i){
-    var v=sheetValues(i),sheet=$('#printSheet');
-    function put(name,text){[].forEach.call(sheet.querySelectorAll('[data-f="'+name+'"]'),function(n){n.textContent=text||''})}
-    put('term',v.term);put('dropAddEnds',pDate(v.dropAddEnds));
-    put('studentName',v.studentName||i.studentName);put('studentId',v.studentId||i.studentId);
-    put('phone',v.phone||i.phone);put('email',v.email||i.email);
-    put('program',v.program);put('startDate',pDate(v.startDate));
-    put('otherFunding',v.otherFunding);
-    put('signature',v.signature);put('signatureDate',v.signatureDate);put('printedName',v.printedName);
-    var minor=String(v.under18||'').toLowerCase()==='yes';
-    put('guardianSignature',minor?v.guardianSignature:'');put('guardianDate',minor?v.guardianDate:'');
-    var initials=String(v.initials||'').split(',').map(function(x){return x.trim()});
-    [].forEach.call(sheet.querySelectorAll('[data-init]'),function(n){n.textContent=initials[+n.getAttribute('data-init')]||''});
-    var sources=Array.isArray(v.fundingSources)?v.fundingSources:[];
-    [].forEach.call(sheet.querySelectorAll('[data-src]'),function(n){n.classList.toggle('on',sources.indexOf(n.getAttribute('data-src'))>-1)});
-    [].forEach.call(sheet.querySelectorAll('[data-fafsa]'),function(n){n.classList.toggle('on',n.getAttribute('data-fafsa')===v.fafsaStatus)});
-    // Office-use box: only what the console already knows. The rest is left for staff to complete by hand.
-    $('#ps-docYes').classList.toggle('on',st(i)==='Funding on file');
-    put('balanceDue',(i.balanceDue===''||i.balanceDue==null)?'':Number(i.balanceDue).toFixed(2));
-    put('reviewedBy',i.reviewedBy||'');put('reviewedAt',i.reviewedAt?fmtD(i.reviewedAt):'');
-    put('submissionNote',i.reference?('Ref. '+i.reference+' \u00b7 received '+fmtDT(i.submitted)):'');
-  }
+  // Only submissions saved with their full set of values (new format) can print as the form.
   function sheetReady(i){
-    return !!PRINTERS[i.formType||'']&&(i.fields||[]).some(function(f){return f.key==='studentName'});
+    var keys={};(i.fields||[]).forEach(function(f){if(f.key)keys[f.key]=1});
+    return !!(window.LWTCSheet&&PRINTERS[i.formType||'']&&keys.studentName&&keys.signature&&keys.initials);
   }
-  var savedTitle=document.title;
-  window.addEventListener('afterprint',function(){document.title=savedTitle});
   $('#dPrint').addEventListener('click',function(){
     if(!current)return;
     if(changedKeys().length&&!window.confirm('You have unsaved changes. Print the last saved version?'))return;
-    var useSheet=sheetReady(current);
-    document.body.classList.toggle('print-sheet',useSheet);
-    if(useSheet){
-      fillSheet(current);
-      savedTitle=document.title;
-      document.title=current.formLabel+' - '+(current.studentName||'')+' - '+(current.reference||'');
+    if(sheetReady(current)){
+      setMsg('');
+      window.LWTCSheet.print(sheetValues(current),{
+        title:current.formLabel+' - '+(current.studentName||'')+' - '+(current.reference||''),
+        note:current.reference?('Ref. '+current.reference+' \u00b7 received '+fmtDT(current.submitted)):''
+      });
+      return;
     }
-    var go=function(){window.print()};
-    if(useSheet&&document.fonts&&document.fonts.load){
-      // The sheet is hidden until printing, so ask for each face up front. Print even if one can't load.
-      Promise.all(['400 12pt "Alfa Slab One"','400 10pt "Source Sans 3"','italic 400 10pt "Source Sans 3"','600 10pt "Source Sans 3"','italic 600 10pt "Source Sans 3"','700 10pt "Source Sans 3"']
-        .map(function(f){return document.fonts.load(f)})).then(go,go);
-    }else go();
+    document.body.classList.remove('print-sheet');
+    if(PRINTERS[current.formType||''])setMsg('This submission was saved before its full answers were stored, so it prints as a detail sheet. New submissions print as the form.');
+    window.print();
   });
   $('#dSave').addEventListener('click',function(){
     if(!current)return;
