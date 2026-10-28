@@ -149,8 +149,18 @@ legend{padding:0;font-weight:700;font-size:15px;margin-bottom:var(--s2)}
 .chk input:checked{background:linear-gradient(90deg,var(--green-a),var(--green-b));border-color:#4E7A2F}
 .chk input:checked::after{content:"\2713";color:#231F20;font-weight:700;font-size:16px;line-height:1}
 .chk span{font-weight:600}
-.fafsa{grid-column:1/-1;border-bottom:1px solid var(--line);padding-bottom:var(--s3);margin-bottom:var(--s2)}
-.fafsa .sub{display:flex;gap:var(--s2) var(--s4);flex-wrap:wrap;margin-top:var(--s1)}
+/* The FAFSA question: larger, bold type on a brand-orange gradient field (the other choices are unchanged) */
+.fafsa{grid-column:1/-1;background:linear-gradient(90deg,var(--orange-a),var(--orange-b));border-radius:12px;padding:var(--s3) var(--s4);margin:0 0 var(--s3)}
+.fafsa .fl{margin:0 0 var(--s1);font:700 26px/1.2 var(--text);color:var(--ink)}
+.fafsa .sub{display:flex;gap:0 var(--s2);flex-wrap:wrap;align-items:center;margin:0}
+.fafsa .chk{padding:8px 6px;min-height:48px;align-items:center;gap:10px}
+.fafsa .chk:hover{background:rgba(255,255,255,.3)}
+.fafsa .chk span{font-weight:700;font-size:18px;line-height:1.25}
+.fafsa .chk input{width:28px;height:28px;border-width:3px;background:#fff}
+.fafsa .chk input:checked{background:#fff;border-color:var(--ink)}
+.fafsa .chk input:checked::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--ink)}
+.fafsa :focus-visible{outline-color:var(--ink)}
+@media(max-width:700px){.fafsa .fl{margin-bottom:var(--s2)}.fafsa .chk span{font-size:17px}}
 .other-row{margin-top:var(--s3)}
 
 /* Acknowledgements */
@@ -338,14 +348,14 @@ footer .row{display:flex;justify-content:space-between;gap:var(--s3);flex-wrap:w
         <p class="panel-intro">Check all that apply. You can change your plan later by contacting the Financial Aid Office.</p>
         <div class="plan" id="plan">
           <div class="checks">
-            <fieldset class="fafsa">
-              <legend>FAFSA</legend>
+            <div class="fafsa" role="radiogroup" aria-labelledby="fafsaLabel">
+              <div class="fl" id="fafsaLabel">FAFSA</div>
               <div class="sub">
                 <label class="chk"><input type="radio" name="fafsa" value="I have submitted my FAFSA"><span>I have submitted my FAFSA</span></label>
                 <label class="chk"><input type="radio" name="fafsa" value="I will submit my FAFSA"><span>I will submit my FAFSA</span></label>
                 <label class="chk"><input type="radio" name="fafsa" value="I will not submit my FAFSA"><span>I will not submit my FAFSA</span></label>
               </div>
-            </fieldset>
+            </div>
             <label class="chk"><input type="checkbox" name="fund" value="CareerSource Southwest Florida"><span>CareerSource Southwest Florida</span></label>
             <label class="chk"><input type="checkbox" name="fund" value="Collier Community Foundation Scholarship"><span>Collier Community Foundation Scholarship</span></label>
             <label class="chk"><input type="checkbox" name="fund" value="VA Education Benefits"><span>VA Education Benefits</span></label>
