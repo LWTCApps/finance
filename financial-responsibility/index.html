@@ -94,7 +94,7 @@ a:hover{text-decoration-thickness:2px}
 .deadline .row{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
 @media(max-width:600px){.deadline .row{grid-template-columns:1fr}}
 .deadline label{font-weight:700;font-size:15px}
-.deadline input{background:#fff;color:#231F20;border-color:#231F20}
+.deadline input,.deadline select{background-color:#fff;color:#231F20}
 
 /* Step nav */
 .steps{display:flex;gap:var(--s2);flex-wrap:wrap;margin:0 0 var(--s5);padding:0;list-style:none}
@@ -117,8 +117,11 @@ section.panel{margin:0 0 var(--s5)}
 .field label,.lbl{display:block;font-weight:700;font-size:15px;margin-bottom:var(--s1)}
 .req{color:var(--error);margin-left:2px}
 input[type=text],input[type=tel],input[type=email],input[type=date]{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:4px;padding:11px 12px;min-height:46px}
-input[type=text]:hover,input[type=tel]:hover,input[type=email]:hover,input[type=date]:hover{border-color:var(--muted)}
-input.invalid{border-color:var(--error)}
+select{width:100%;font:inherit;color:var(--ink);background-color:var(--paper);border:2px solid var(--line);border-radius:4px;padding:11px 12px;min-height:46px;cursor:pointer}
+select:invalid{color:var(--muted)}
+select option{color:var(--ink)}
+input[type=text]:hover,input[type=tel]:hover,input[type=email]:hover,input[type=date]:hover,select:hover{border-color:var(--muted)}
+input.invalid,select.invalid{border-color:var(--error)}
 .err{display:none;color:var(--error);font-size:14px;font-weight:600;margin-top:var(--s1)}
 .field.has-error .err,.has-error>.err{display:block}
 .hint{font-size:14px;color:var(--muted);margin-top:var(--s1)}
@@ -243,8 +246,8 @@ footer .row{display:flex;justify-content:space-between;gap:var(--s3);flex-wrap:w
       <div class="row">
         <div class="field">
           <label for="term">Term<span class="req" aria-hidden="true">*</span></label>
-          <input type="text" id="term" name="term" autocomplete="off" placeholder="e.g., Spring 2027" required form="form">
-          <div class="err" id="err-term">Enter the term you’re enrolling in.</div>
+          <select id="term" name="term" required form="form"><option value="">Choose a term</option></select>
+          <div class="err" id="err-term">Choose the term you’re enrolling in.</div>
         </div>
         <div class="field">
           <label for="dropadd">Drop/add period ends<span class="req" aria-hidden="true">*</span></label>
@@ -275,7 +278,7 @@ footer .row{display:flex;justify-content:space-between;gap:var(--s3);flex-wrap:w
           <div class="field"><label for="email">Email address<span class="req" aria-hidden="true">*</span></label>
             <input type="email" id="email" name="email" autocomplete="email" required><div class="err">Enter a valid email address, like name@example.com.</div></div>
           <div class="field"><label for="program">Program of study<span class="req" aria-hidden="true">*</span></label>
-            <input type="text" id="program" name="program" autocomplete="off" required><div class="err">Enter your program of study.</div></div>
+            <select id="program" name="program" required><option value="">Choose your program</option></select><div class="err">Choose your program of study.</div></div>
           <div class="field"><label for="start">Anticipated start date<span class="req" aria-hidden="true">*</span></label>
             <input type="date" id="start" name="start" required><div class="err">Enter your anticipated start date.</div></div>
         </div>
@@ -462,6 +465,52 @@ var CONFIG={
   TIMEOUT_MS:25000
 };
 var LIVE=!!CONFIG.SUBMIT_URL && location.protocol!=='file:';
+
+/* Programs offered. Keep identical to PROGRAMS in worker.financial-aid.js. */
+var PROGRAMS=[
+  "Accounting Operations",
+  "Automotive Collision Technology Technician",
+  "Aviation Airframe Mechanics",
+  "Aviation Powerplant Mechanics",
+  "Avionics Systems Technician",
+  "Building Construction Technologies",
+  "Cosmetology",
+  "Database Application Development & Programming",
+  "Dental Assisting",
+  "Digital Media/Multimedia Design",
+  "Drafting",
+  "Electronic Systems Integration and Automation",
+  "Enterprise Desktop and Mobile Support Technology",
+  "Facials Specialty",
+  "Heating, Ventilation, Air-Conditioning/Refrigeration (HVAC/R)",
+  "Marine Service Technologies",
+  "Master Automotive Service Technology 1",
+  "Medical Assisting",
+  "Nursing Assistant (Articulated)",
+  "Patient Care Technician",
+  "Pharmacy Technician",
+  "Phlebotomy",
+  "Practical Nursing",
+  "Professional Culinary Arts & Hospitality",
+  "Professional Nursing (LPN to RN)",
+  "Surgical Technology",
+  "Veterinary Assisting",
+  "Welding Technology"
+];
+/* Terms: Summer, Fall and Spring for this year and the two before it, plus the upcoming Spring,
+   newest first. Rolls forward each year. Mirrors termOptions() in the Worker. */
+var TERM_YEARS_BACK=2, TERM_INCLUDE_NEXT_SPRING=true;
+function termOptions(){
+  var y=new Date().getFullYear(),out=TERM_INCLUDE_NEXT_SPRING?['Spring '+(y+1)]:[];
+  for(var k=0;k<=TERM_YEARS_BACK;k++)out.push('Fall '+(y-k),'Summer '+(y-k),'Spring '+(y-k));
+  return out;
+}
+function fillSelect(id,list){
+  var sel=document.getElementById(id);
+  list.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o)});
+}
+fillSelect('program',PROGRAMS);
+fillSelect('term',termOptions());
 
 (function(){
   var $=function(s,r){return (r||document).querySelector(s)};
