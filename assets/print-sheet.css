@@ -67,9 +67,14 @@
 #printSheet .p-qr i{color:var(--muted);font-size:6.6pt;text-align:center;line-height:1.15}
 
 #printSheet .p-checks{display:grid;grid-template-columns:1fr 1fr;gap:0 16pt;padding:0 4pt;font-size:9.8pt;font-weight:700}
-#printSheet .p-checks div{margin-bottom:8pt;display:flex;align-items:center;gap:5pt;flex-wrap:wrap}
-#printSheet .p-checks .fa b{margin-right:3pt}
-#printSheet .p-checks .fa span{font-weight:400;display:inline-flex;align-items:center;gap:4pt;margin-right:4pt}
+#printSheet .p-checks div{margin-bottom:5.5pt;display:flex;align-items:center;gap:5pt;flex-wrap:wrap}
+#printSheet .p-checks .p-blank{margin:0}
+/* The FAFSA question: a larger, bolder line on a brand-orange field (the other choices are unchanged) */
+#printSheet .p-checks .fa{grid-column:1/-1;background:var(--orange);border-radius:9pt;padding:6pt 12pt;margin:0 -4pt 9pt;gap:5pt 16pt;flex-wrap:nowrap;justify-content:space-between;font-size:12.5pt;font-weight:700}
+#printSheet .p-checks .fa b{font-size:14pt;font-weight:700;margin-right:2pt}
+#printSheet .p-checks .fa span{font-weight:700;font-size:10.8pt;display:inline-flex;align-items:center;gap:5pt;white-space:nowrap}
+#printSheet .p-checks .fa .cb{width:12pt;height:12pt;border-width:1.6pt;border-radius:2pt}
+#printSheet .p-checks .fa .cb.on::after{left:3.1pt;top:-.7pt;width:4.1pt;height:8.4pt;border-width:0 2pt 2pt 0}
 #printSheet .cb{display:inline-block;flex:none;width:9.5pt;height:9.5pt;border:1.2pt solid var(--ink);border-radius:1.5pt;position:relative;background:#fff}
 #printSheet .cb.on::after{content:"";position:absolute;left:2.4pt;top:-.6pt;width:3.4pt;height:6.8pt;border:solid var(--ink);border-width:0 1.7pt 1.7pt 0;transform:rotate(45deg)}
 #printSheet .p-other{padding:4pt 4pt 0;font-size:9.8pt;font-weight:700;display:flex;align-items:center;gap:5pt}
@@ -82,15 +87,15 @@
 #printSheet .p-ai{border-left:1pt solid var(--ink);position:relative;text-align:center}
 #printSheet .p-ai small{position:absolute;top:3pt;left:0;right:0;font-size:7.2pt;font-weight:700;color:var(--muted)}
 #printSheet .p-ai b{display:block;margin-top:12pt;font-size:13pt;font-weight:700;letter-spacing:1pt}
-#printSheet .p-agree{margin:10pt 0 4pt;font-size:9.4pt;font-weight:700}
+#printSheet .p-agree{margin:8pt 0 2pt;font-size:9.4pt;font-weight:700}
 #printSheet .p-sig{display:grid;grid-template-columns:5in 2.5in}
 #printSheet .p-sig.one{grid-template-columns:5in}
 #printSheet .p-sc{padding:0;min-width:0}
-#printSheet .p-sv{height:.42in;border-bottom:1pt solid var(--ink);display:flex;align-items:flex-end;padding:0 4pt 2pt;font-size:11.5pt;font-weight:600;overflow:hidden;white-space:nowrap;margin-right:8pt}
+#printSheet .p-sv{height:.37in;border-bottom:1pt solid var(--ink);display:flex;align-items:flex-end;padding:0 4pt 2pt;font-size:11.5pt;font-weight:600;overflow:hidden;white-space:nowrap;margin-right:8pt}
 #printSheet .p-sv.sig{font-style:italic;font-weight:600;font-size:15pt}
-#printSheet .p-sl{display:block;font-size:8pt;font-weight:700;color:var(--muted);padding:3pt 0 0 4pt;margin-bottom:6pt}
+#printSheet .p-sl{display:block;font-size:8pt;font-weight:700;color:var(--muted);padding:3pt 0 0 4pt;margin-bottom:4pt}
 
-#printSheet .p-office-use{border:1pt dashed var(--muted);border-radius:9pt;padding:8pt 12pt;margin-top:12pt}
+#printSheet .p-office-use{border:1pt dashed var(--muted);border-radius:9pt;padding:7pt 12pt;margin-top:8pt}
 #printSheet .p-office-use h6{margin:0 0 7pt;font-size:10pt;line-height:1.2}
 #printSheet .p-oline{display:flex;align-items:center;gap:6pt;flex-wrap:wrap;font-size:9.4pt;margin-bottom:7pt}
 #printSheet .p-oline:last-child{margin-bottom:0}
