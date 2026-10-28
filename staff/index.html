@@ -47,7 +47,7 @@ h1{font:400 clamp(26px,4vw,38px)/1.1 var(--display);margin:8px 0 4px}
 .tools{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end}
 .tools .grow{flex:1 1 260px;max-width:420px}
 .tools label{display:block;font-weight:700;font-size:13px;color:var(--muted);margin-bottom:2px}
-input[type=search],input[type=text],input[type=number],select,textarea{font:inherit;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:4px;padding:10px 12px;min-height:44px;width:100%}
+input[type=search],input[type=text],input[type=number],input[type=tel],input[type=email],input[type=date],select,textarea{font:inherit;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:4px;padding:10px 12px;min-height:44px;width:100%}
 .btn{font:700 15px/1 var(--text);border:0;border-radius:48px;padding:13px 22px;min-height:44px;cursor:pointer;color:#231F20;background:linear-gradient(90deg,var(--orange-a),var(--orange-b))}
 .btn.alt{background:transparent;color:var(--ink);border:2px solid var(--ink)}
 .btn[disabled]{opacity:.6;cursor:progress}
@@ -69,20 +69,34 @@ tr.grouprow .gmeta{font-weight:600;color:var(--muted);font-size:14px;margin-righ
 .mono{font-variant-numeric:tabular-nums}
 @media(max-width:760px){.hide-s{display:none}}
 
-dialog{width:min(720px,calc(100vw - 24px));max-height:calc(100vh - 24px);border:2px solid var(--ink);border-radius:12px;padding:0;background:#fff;color:var(--ink)}
+dialog{width:min(820px,calc(100vw - 24px));max-height:calc(100vh - 24px);border:2px solid var(--ink);border-radius:12px;padding:0;background:#fff;color:var(--ink)}
 dialog::backdrop{background:rgba(0,0,0,.5)}
 .dhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line)}
 .dhead h2{font:400 24px/1.1 var(--display);margin:0 0 4px}
 .dbody{padding:16px 20px;overflow:auto;max-height:calc(100vh - 220px)}
-dl.kv{display:grid;grid-template-columns:minmax(120px,170px) 1fr;margin:0 0 16px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-dl.kv dt,dl.kv dd{margin:0;padding:8px 12px;border-bottom:1px solid var(--line)}
-dl.kv dt{font-weight:700;font-size:14px;color:var(--muted);background:var(--surface)}
-dl.kv dd{overflow-wrap:anywhere;white-space:pre-wrap}
-dl.kv>:nth-last-child(-n+2){border-bottom:0}
+.sect{font:400 17px/1.2 var(--display);margin:18px 0 10px;display:flex;gap:10px;align-items:center}
+.sect:first-child{margin-top:0}
+.lockbadge{font:700 12px var(--text);border:2px solid var(--line);border-radius:48px;padding:1px 10px;color:var(--muted)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin-bottom:8px}
+.fgrid.locked{background:var(--surface);border-radius:8px;padding:12px}
+.fld{min-width:0}
+.fld.wide{grid-column:1/-1}
+.fld>label,.fld>.lab{display:block;font-weight:700;font-size:14px;margin-bottom:2px}
+.fld .req{color:var(--error)}
+.fld .val{padding:10px 0;overflow-wrap:anywhere;white-space:pre-wrap}
+.fgrid.locked .val{padding:2px 0}
+.fld.changed input,.fld.changed select,.fld.changed fieldset{border-color:#F37026;box-shadow:0 0 0 2px color-mix(in srgb,#F37026 25%,transparent)}
+.fld.bad input,.fld.bad select,.fld.bad fieldset{border-color:var(--error);box-shadow:0 0 0 2px color-mix(in srgb,var(--error) 25%,transparent)}
+.fld .ferr{display:none;color:var(--error);font-weight:600;font-size:14px;margin-top:2px}
+.fld.bad .ferr{display:block}
+fieldset.checks{border:2px solid var(--line);border-radius:4px;padding:6px 10px;margin:0;min-width:0}
+fieldset.checks label{display:flex;gap:10px;align-items:flex-start;padding:5px 0;font-weight:600;cursor:pointer}
+fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:none;accent-color:#6EA141}
+.dirty{font-weight:700;color:#C2410C}
 .review{background:var(--surface);border-radius:8px;padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .review label{display:block;font-weight:700;font-size:14px;margin-bottom:2px}
 .review .full{grid-column:1/-1}
-@media(max-width:560px){.review{grid-template-columns:1fr}dl.kv{grid-template-columns:1fr}}
+@media(max-width:620px){.review,.fgrid{grid-template-columns:1fr}}
 .dfoot{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:14px 20px;border-top:1px solid var(--line)}
 .msg{font-weight:600;min-height:1.4em}.msg.err{color:var(--error)}
 .reviewed{font-size:14px;color:var(--muted);margin:8px 0 0}
@@ -143,7 +157,7 @@ dl.kv>:nth-last-child(-n+2){border-bottom:0}
     <button class="btn alt" id="dClose" type="button">Close</button>
   </div>
   <div class="dbody">
-    <dl class="kv" id="dFields"></dl>
+    <div id="dFields"></div>
     <div class="review">
       <div><label for="fStatus">Status</label><select id="fStatus"></select></div>
       <div id="balWrap"><label for="fBal">Balance due ($)</label><input type="number" id="fBal" min="0" step="0.01" inputmode="decimal"></div>
@@ -152,7 +166,7 @@ dl.kv>:nth-last-child(-n+2){border-bottom:0}
     <p class="reviewed" id="dReviewed"></p>
   </div>
   <div class="dfoot">
-    <span class="msg" id="dMsg" role="status"></span>
+    <span><span class="dirty" id="dDirty"></span> <span class="msg" id="dMsg" role="status"></span></span>
     <span style="display:flex;gap:10px"><button class="btn alt" id="dPrint" type="button">Print</button><button class="btn" id="dSave" type="button">Save changes</button></span>
   </div>
 </dialog>
@@ -172,7 +186,7 @@ dl.kv>:nth-last-child(-n+2){border-bottom:0}
     opts=opts||{};opts.credentials='same-origin';
     return fetch(path,opts).then(function(r){
       if(r.status===401||r.status===403){throw {auth:true}}
-      return r.json().then(function(j){if(!r.ok||j.ok===false)throw {status:r.status};return j});
+      return r.json().catch(function(){return {}}).then(function(j){if(!r.ok||j.ok===false)throw {status:r.status,field:j.field};return j});
     });
   }
   function banner(msg){var b=$('#banner');b.textContent=msg||'';b.classList.toggle('show',!!msg)}
@@ -218,7 +232,7 @@ dl.kv>:nth-last-child(-n+2){border-bottom:0}
   }
 
   /* ---- filtering and sorting ---- */
-  function haystack(i){return [i.studentName,i.studentId,i.reference,i.email,i.summary,i.formLabel].concat((i.details||[]).map(function(d){return d.value})).join(' ').toLowerCase()}
+  function haystack(i){return [i.studentName,i.studentId,i.reference,i.email,i.phone,i.summary,i.formLabel].concat((i.fields||[]).map(function(f){return Array.isArray(f.value)?f.value.join(' '):f.value})).join(' ').toLowerCase()}
   function visible(){
     var q=$('#q').value.trim().toLowerCase();
     return items.filter(function(i){
@@ -289,13 +303,87 @@ dl.kv>:nth-last-child(-n+2){border-bottom:0}
   }
   function schedule(){clearTimeout(timer);var wait=Math.min(60000*Math.pow(2,failures),300000);timer=setTimeout(function(){if(document.visibilityState==='visible'&&!$('#dlg').open)load();else schedule()},wait)}
 
+  var inputs={};   // key -> {field, get(), box}
+
+  function sameVal(a,b){
+    if(Array.isArray(a)||Array.isArray(b)){return (a||[]).slice().sort().join('\u0001')===(b||[]).slice().sort().join('\u0001')}
+    return String(a==null?'':a).trim()===String(b==null?'':b).trim();
+  }
+  function changedKeys(){
+    return Object.keys(inputs).filter(function(k){return !sameVal(inputs[k].get(),inputs[k].field.value)});
+  }
+  function refreshDirty(){
+    var ch=changedKeys();
+    Object.keys(inputs).forEach(function(k){inputs[k].box.classList.toggle('changed',ch.indexOf(k)>-1)});
+    if(ch.length&&$('#dMsg').textContent.indexOf('Saved')===0)setMsg('');
+    $('#dDirty').textContent=ch.length?(ch.length+(ch.length===1?' value changed':' values changed')+' \u2013 not saved yet'):'';
+  }
+  function fieldBox(f){
+    var box=el('div','fld'+(f.type==='multiselect'?' wide':''));
+    var id='f_'+(f.key||Math.random().toString(36).slice(2));
+    if(!f.editable){
+      box.appendChild(el('span','lab',f.label));
+      box.appendChild(el('div','val',f.value||'\u2014'));
+      return box;
+    }
+    var lab=el('label',null,f.label);lab.htmlFor=id;
+    if(f.required){var r=el('span','req',' *');r.setAttribute('aria-hidden','true');lab.appendChild(r)}
+    var get,ctrl;
+    if(f.type==='select'){
+      ctrl=document.createElement('select');ctrl.id=id;
+      var blank=el('option',null,f.required?'Choose\u2026':'Not selected');blank.value='';ctrl.appendChild(blank);
+      (f.options||[]).forEach(function(o){var op=el('option',null,o);op.value=o;ctrl.appendChild(op)});
+      ctrl.value=f.value||'';get=function(){return ctrl.value};
+      box.appendChild(lab);box.appendChild(ctrl);
+    }else if(f.type==='multiselect'){
+      var fs=document.createElement('fieldset');fs.className='checks';fs.id=id;fs.setAttribute('role','group');fs.setAttribute('aria-label',f.label);
+      var lg=el('div','lab',f.label);box.appendChild(lg);
+      var cbs=[];
+      (f.options||[]).forEach(function(o){
+        var l=document.createElement('label'),c=document.createElement('input');c.type='checkbox';c.value=o;
+        c.checked=(f.value||[]).indexOf(o)>-1;cbs.push(c);l.appendChild(c);l.appendChild(el('span',null,o));fs.appendChild(l);
+      });
+      get=function(){return cbs.filter(function(c){return c.checked}).map(function(c){return c.value})};
+      box.appendChild(fs);ctrl=fs;
+    }else{
+      ctrl=document.createElement('input');ctrl.id=id;
+      ctrl.type=f.type==='tel'?'tel':f.type==='email'?'email':f.type==='date'?'date':'text';
+      if(f.max)ctrl.maxLength=f.max;
+      ctrl.value=f.value||'';get=function(){return ctrl.value};
+      if(f.type==='email')ctrl.autocomplete='off';
+      box.appendChild(lab);box.appendChild(ctrl);
+    }
+    box.appendChild(el('div','ferr','Check this value.'));
+    ctrl.addEventListener('input',function(){box.classList.remove('bad');refreshDirty()});
+    ctrl.addEventListener('change',function(){box.classList.remove('bad');refreshDirty()});
+    inputs[f.key]={field:f,get:get,box:box};
+    return box;
+  }
+  function buildFields(i){
+    var host=$('#dFields');host.innerHTML='';inputs={};
+    var fields=i.fields||[];
+    if(!fields.length){
+      fields=[['Student ID',i.studentId],['Phone',i.phone],['Email',i.email]].map(function(r){return {label:r[0],value:r[1],editable:false,section:''}});
+    }
+    var last=null,grid=null;
+    fields.forEach(function(f){
+      var sec=f.section||'Details';
+      if(sec!==last){
+        last=sec;
+        var locked=/\(locked\)\s*$/.test(sec);
+        var h=el('h3','sect',sec.replace(/\s*\(locked\)\s*$/,''));
+        if(locked)h.appendChild(el('span','lockbadge','Signed by the student \u2013 locked'));
+        host.appendChild(h);grid=el('div','fgrid'+(locked?' locked':''));host.appendChild(grid);
+      }
+      grid.appendChild(fieldBox(f));
+    });
+    refreshDirty();
+  }
   function openItem(i){
     current=i;var info=formInfo(i.formType||'');
     $('#dTitle').textContent=i.studentName||'';
     $('#dRef').textContent=i.formLabel+' \u00b7 '+(i.reference||'')+' \u00b7 submitted '+fmtDT(i.submitted);
-    var f=$('#dFields');f.innerHTML='';
-    var rows=[['Student ID',i.studentId],['Phone',i.phone],['Email',i.email]].concat((i.details||[]).map(function(d){return [d.label,d.value]}));
-    rows.forEach(function(r){f.appendChild(el('dt',null,r[0]));f.appendChild(el('dd',null,r[1]||'\u2014'))});
+    buildFields(i);
     var sel=$('#fStatus');sel.innerHTML='';
     STATUSES.forEach(function(s){var o=el('option',null,s);o.value=s;sel.appendChild(o)});
     sel.value=st(i);
@@ -307,18 +395,50 @@ dl.kv>:nth-last-child(-n+2){border-bottom:0}
   }
   function setMsg(t,err){var m=$('#dMsg');m.textContent=t||'';m.classList.toggle('err',!!err)}
 
-  $('#dClose').addEventListener('click',function(){$('#dlg').close()});
+  // Quick checks so obvious mistakes are caught before sending; the Worker re-checks everything.
+  function badFields(){
+    var bad=[];
+    Object.keys(inputs).forEach(function(k){
+      var f=inputs[k].field,v=inputs[k].get(),ok=true,sv=Array.isArray(v)?v.length:String(v).trim();
+      if(f.required&&!sv)ok=false;
+      if(ok&&sv&&f.type==='email'&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v))ok=false;
+      if(ok&&sv&&f.type==='tel'&&String(v).replace(/\D/g,'').length<10)ok=false;
+      inputs[k].box.classList.toggle('bad',!ok);
+      if(!ok)bad.push(k);
+    });
+    return bad;
+  }
+  function applySaved(item){
+    if(!item)return;
+    ['studentName','studentId','phone','email','summary'].forEach(function(k){if(item[k]!=null)current[k]=item[k]});
+    (current.fields||[]).forEach(function(f){if(f.editable&&item.values&&Object.prototype.hasOwnProperty.call(item.values,f.key))f.value=item.values[f.key]});
+  }
+
+  $('#dClose').addEventListener('click',function(){if(changedKeys().length&&!window.confirm('Discard your unsaved changes?'))return;$('#dlg').close()});
   $('#dPrint').addEventListener('click',function(){window.print()});
   $('#dSave').addEventListener('click',function(){
     if(!current)return;
+    var ch=changedKeys();
+    if(ch.length){
+      var bad=badFields();
+      if(bad.length){setMsg('Fix the highlighted values first.',true);try{inputs[bad[0]].box.scrollIntoView({block:'center'})}catch(_){}return}
+    }
     var btn=$('#dSave');btn.disabled=true;setMsg('Saving\u2026');
-    var body={id:current.id,status:$('#fStatus').value,balanceDue:$('#balWrap').hidden?'':$('#fBal').value,staffNotes:$('#fNotes').value};
-    api('/api/staff/status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(){
+    var body={id:current.id,formType:current.formType||'',status:$('#fStatus').value,balanceDue:$('#balWrap').hidden?'':$('#fBal').value,staffNotes:$('#fNotes').value};
+    if(ch.length){
+      body.values={};
+      Object.keys(inputs).forEach(function(k){body.values[k]=inputs[k].get()});
+    }
+    api('/api/staff/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(j){
       current.status=body.status;current.balanceDue=body.balanceDue;current.staffNotes=body.staffNotes;
       current.reviewedBy=$('#me').textContent;current.reviewedAt=new Date().toISOString();
-      render();setMsg('Saved.');
+      applySaved(j.item);
+      $('#dTitle').textContent=current.studentName||'';
+      buildFields(current);render();
+      setMsg(ch.length?'Saved. '+ch.length+(ch.length===1?' value':' values')+' updated.':'Saved.');
       $('#dReviewed').textContent='Last reviewed by '+current.reviewedBy+' just now.';
     }).catch(function(e){
+      if(e&&e.field&&inputs[e.field]){inputs[e.field].box.classList.add('bad');setMsg('That value isn\u2019t accepted. Check the highlighted field.',true);return}
       setMsg(e&&e.auth?'Your sign-in expired. Reload the page.':'Couldn\u2019t save. Try again.',true);
     }).then(function(){btn.disabled=false});
   });
