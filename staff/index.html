@@ -93,6 +93,8 @@ fieldset.checks{border:2px solid var(--line);border-radius:4px;padding:6px 10px;
 fieldset.checks label{display:flex;gap:10px;align-items:flex-start;padding:5px 0;font-weight:600;cursor:pointer}
 fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:none;accent-color:#6EA141}
 .dirty{font-weight:700;color:#C2410C}
+.fld.legacy select{border-color:#F9A03C;background:#FFF6E8}
+.fld.legacy::after{content:"Not in the current list. Choose an option before saving.";display:block;font-size:13px;font-weight:600;color:#9A5B00;margin-top:2px}
 .review{background:var(--surface);border-radius:8px;padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .review label{display:block;font-weight:700;font-size:14px;margin-bottom:2px}
 .review .full{grid-column:1/-1}
@@ -333,6 +335,12 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
       ctrl=document.createElement('select');ctrl.id=id;
       var blank=el('option',null,f.required?'Choose\u2026':'Not selected');blank.value='';ctrl.appendChild(blank);
       (f.options||[]).forEach(function(o){var op=el('option',null,o);op.value=o;ctrl.appendChild(op)});
+      // An older row can hold a value that is no longer offered (for example a program typed by hand).
+      // Show it so nothing looks blank, and flag it so staff pick a current option when they save.
+      if(f.value&&(f.options||[]).indexOf(f.value)<0){
+        var old=el('option',null,f.value+' (no longer offered)');old.value=f.value;ctrl.appendChild(old);
+        box.classList.add('legacy');
+      }
       ctrl.value=f.value||'';get=function(){return ctrl.value};
       box.appendChild(lab);box.appendChild(ctrl);
     }else if(f.type==='multiselect'){
@@ -355,7 +363,7 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
     }
     box.appendChild(el('div','ferr','Check this value.'));
     ctrl.addEventListener('input',function(){box.classList.remove('bad');refreshDirty()});
-    ctrl.addEventListener('change',function(){box.classList.remove('bad');refreshDirty()});
+    ctrl.addEventListener('change',function(){box.classList.remove('bad');if((f.options||[]).indexOf(get())>-1)box.classList.remove('legacy');refreshDirty()});
     inputs[f.key]={field:f,get:get,box:box};
     return box;
   }
