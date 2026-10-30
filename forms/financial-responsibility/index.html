@@ -118,6 +118,15 @@ section.panel{margin:0 0 var(--s5)}
 input[type=text],input[type=tel],input[type=email],input[type=date]{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:4px;padding:11px 12px;min-height:46px}
 select{width:100%;font:inherit;color:var(--ink);background-color:var(--paper);border:2px solid var(--line);border-radius:4px;padding:11px 12px;min-height:46px;cursor:pointer}
 select:invalid{color:var(--muted)}
+input[readonly]{background:var(--surface);cursor:default}
+.deadline input[readonly],.deadline select:disabled{background:#fff;color:#231F20;opacity:1;cursor:default}
+.deadline .basis{margin:var(--s2) 0 0;font-weight:600;font-size:15px}
+.notice-box{border:2px solid #F9A03C;background:#FFF6E8;border-radius:12px;padding:var(--s3);margin:0 0 var(--s3);font-weight:600}
+.extra{margin-top:var(--s3);padding-top:var(--s3);border-top:2px dashed var(--line)}
+.extra-row{margin-bottom:var(--s3);padding:var(--s3);background:var(--surface);border-radius:12px}
+.extra-row h3{margin:0 0 var(--s2);font:700 17px/1.2 var(--text)}
+.extra-row .remove{margin-top:var(--s2)}
+.btn.small{padding:10px 18px;min-height:40px;font-size:15px}
 select option{color:var(--ink)}
 input[type=text]:hover,input[type=tel]:hover,input[type=email]:hover,input[type=date]:hover,select:hover{border-color:var(--muted)}
 input.invalid,select.invalid{border-color:var(--error)}
@@ -264,6 +273,7 @@ footer .row{display:flex;justify-content:space-between;gap:var(--s3);flex-wrap:w
           <div class="err" id="err-dropadd">Enter the drop/add end date.</div>
         </div>
       </div>
+      <p class="basis" id="basisNote" hidden></p>
     </div>
 
     <form id="form" novalidate>
@@ -277,6 +287,7 @@ footer .row{display:flex;justify-content:space-between;gap:var(--s3);flex-wrap:w
       <!-- 1 -->
       <section class="panel" id="s1" aria-labelledby="h1">
         <div class="panel-head"><span class="bubble h-orange" aria-hidden="true">1</span><h2 id="h1">Student information</h2></div>
+        <div class="notice-box" id="noSections" role="status" hidden>No sections are open for enrollment right now. Please call the Financial Aid Office at 239-377-0900 and we will help you.</div>
         <div class="grid">
           <div class="field"><label for="name">Full legal name<span class="req" aria-hidden="true">*</span></label>
             <input type="text" id="name" name="name" autocomplete="name" required><div class="err">Enter your full legal name.</div></div>
@@ -288,8 +299,17 @@ footer .row{display:flex;justify-content:space-between;gap:var(--s3);flex-wrap:w
             <input type="email" id="email" name="email" autocomplete="email" required><div class="err">Enter a valid email address, like name@example.com.</div></div>
           <div class="field"><label for="program">Program of study<span class="req" aria-hidden="true">*</span></label>
             <select id="program" name="program" required><option value="">Choose your program</option></select><div class="err">Choose your program of study.</div></div>
+          <div class="field" id="termPickField" hidden><label for="termPick">Term<span class="req" aria-hidden="true">*</span></label>
+            <select id="termPick"><option value="">Choose your term</option></select><div class="err">Choose your term.</div></div>
+          <div class="field" id="sectionField" hidden><label for="section">Section<span class="req" aria-hidden="true">*</span></label>
+            <select id="section"><option value="">Choose your section</option></select><div class="err">Choose your section.</div></div>
           <div class="field"><label for="start">Anticipated start date<span class="req" aria-hidden="true">*</span></label>
-            <input type="date" id="start" name="start" required><div class="err">Enter your anticipated start date.</div></div>
+            <input type="date" id="start" name="start" required><div class="err">Enter your anticipated start date.</div><div class="hint" id="startHint" hidden>Set by the section you choose.</div></div>
+        </div>
+        <div class="extra" id="extraWrap" hidden>
+          <div id="extraRows"></div>
+          <button type="button" class="btn alt small" id="addSection">Add another section</button>
+          <p class="hint" id="extraHint"></p>
         </div>
       </section>
 
@@ -560,6 +580,12 @@ fillSelect('term',termOptions());
   });
 
   // Rules per field
+  /* ---- Schedule mode ----
+     When the college has published a schedule, students choose a program, term and section. The start date and
+     the drop/add end date come from that section (calculated by the Worker) and cannot be typed. Without a live
+     schedule the form behaves as before. */
+  var SCHED={on:false,sections:[],multi:'single',max:1,basis:'',version:0};
+  var extraRows=[];
   var rules={
     term:function(){return filled('term')},
     dropadd:function(){return filled('dropadd')},
@@ -569,6 +595,8 @@ fillSelect('term',termOptions());
     email:function(){return emailOk($('#email').value)},
     program:function(){return filled('program')},
     start:function(){return filled('start')},
+    termPick:function(){return !SCHED.on||filled('termPick')},
+    section:function(){return !SCHED.on||filled('section')},
     sig:function(){return filled('sig')},
     sigDate:function(){return filled('sigDate')},
     printed:function(){return filled('printed')}
@@ -582,7 +610,7 @@ fillSelect('term',termOptions());
   function initialsDone(){return [1,2,3,4,5].filter(function(n){return filled('i'+n)}).length}
 
   function stepState(){
-    var s1=['name','sid','phone','email','program','start'].every(function(k){return rules[k]()});
+    var s1=['name','sid','phone','email','program','termPick','section','start'].every(function(k){return rules[k]()});
     var s3=planOk()&&otherOk();
     var s4=initialsDone()===5&&rules.sig()&&rules.sigDate()&&rules.printed()&&(!guardianOn()||(filled('gsig')&&filled('gdate')));
     return {1:s1&&rules.term()&&rules.dropadd(),2:true,3:s3,4:s4};
@@ -650,6 +678,17 @@ fillSelect('term',termOptions());
         setErr(el,!ok);if(!ok){if(!first)first=el;problems.push(id)}
       });
     }
+    // Additional sections (only when the college allows several): each must be complete and different
+    if(SCHED.on&&extraRows.length){
+      var keys={};
+      [[$('#program'),$('#termPick'),$('#section')]].concat(extraRows.map(function(r){return [r.querySelector('.x-program'),r.querySelector('.x-term'),r.querySelector('.x-section')]})).forEach(function(t,i){
+        if(i>0&&!(t[0].value&&t[1].value&&t[2].value)){bad(t[2],'extra');return}
+        if(!t[2].value)return;
+        var k=[t[0].value,t[1].value,t[2].value].join('|');
+        if(keys[k])bad(t[2],'dup');
+        keys[k]=1;
+      });
+    }
     return {first:first,problems:problems};
   }
 
@@ -669,12 +708,14 @@ fillSelect('term',termOptions());
     signatureDate:['#sigDate','signature date'],otherFunding:['#otherTxt','description of other funding'],
     fafsaStatus:['#plan','funding plan'],fundingSources:['#plan','funding plan'],fundingPlan:['#plan','funding plan'],
     initials:['#i1','initials'],signature:['#sig','signature'],printedName:['#printed','printed name'],
-    guardianSignature:['#gsig','parent/guardian signature'],guardianDate:['#gdate','parent/guardian date']
+    guardianSignature:['#gsig','parent/guardian signature'],guardianDate:['#gdate','parent/guardian date'],
+    section:['#section','section'],sections:['#section','sections']
   };
   function invalidMessage(field){
     var info=FIELD_INFO[field];
     if(info){
       try{var el=$(info[0]);if(el&&el.tagName){setErr(el,true);el.scrollIntoView({block:'center'})}}catch(_){}
+      if(field==='section'||field==='sections')return 'Your section isn\u2019t available (the schedule may have just changed). Reload this page (Ctrl+Shift+R) to get the current schedule, choose your section again, and resubmit. ';
       if(field==='program'||field==='term')return 'Your '+info[1]+' wasn\u2019t accepted. Reload this page (Ctrl+Shift+R) to get the current list, choose it again, and resubmit. ';
       return 'Your '+info[1]+' wasn\u2019t accepted. Check it and try again. ';
     }
@@ -700,6 +741,8 @@ fillSelect('term',termOptions());
       formRevision:CONFIG.FORM_REVISION,
       term:$('#term').value.trim(),
       dropAddEnds:$('#dropadd').value,
+      sections:SCHED.on?selectedPicks().map(function(x){return {program:x.program,term:x.term,section:x.section}}):[],
+      section:SCHED.on&&$('#section').value?$('#section').value:'',
       studentName:$('#name').value.trim(),
       studentId:$('#sid').value.trim(),
       phone:$('#phone').value.trim(),
@@ -733,7 +776,7 @@ fillSelect('term',termOptions());
       ['Anticipated start',fmtDate(d.startDate)],
       ['Term',d.term],
       ['Drop/add ends',fmtDate(d.dropAddEnds)]
-    ]);
+    ].concat(d.section?[['Section',d.section]]:[]).concat((d.additionalSections&&d.additionalSections.length)?[['Additional sections',d.additionalSections.join('; ')]]:[]));
     var rows=[];
     if(d.fafsaStatus)rows.push(['FAFSA',d.fafsaStatus]);
     d.fundingSources.forEach(function(f){rows.push(['Funding',f==='Other'?'Other: '+d.otherFunding:f])});
@@ -810,6 +853,8 @@ fillSelect('term',termOptions());
       return res.json().catch(function(){return {}}).then(function(j){
         if(res.ok&&j&&j.ok){
           if(j.reference)data.reference=j.reference;
+          ['program','term','section','startDate','dropAddEnds','dropAddBasis'].forEach(function(k){if(j[k])data[k]=j[k]});
+          if(j.additionalSections)data.additionalSections=j.additionalSections;
           st.textContent='';
           showDone(true,data);
           return;
@@ -846,7 +891,8 @@ fillSelect('term',termOptions());
     return {term:d.term,dropAddEnds:d.dropAddEnds,studentName:d.studentName,studentId:d.studentId,phone:d.phone,email:d.email,
       program:d.program,startDate:d.startDate,fafsaStatus:d.fafsaStatus,fundingSources:d.fundingSources,otherFunding:d.otherFunding,
       initials:d.initials,signature:d.signature,signatureDate:d.signatureDate,printedName:d.printedName,
-      under18:d.under18,guardianSignature:d.guardianSignature,guardianDate:d.guardianDate};
+      under18:d.under18,guardianSignature:d.guardianSignature,guardianDate:d.guardianDate,
+      section:d.section,additionalSections:d.additionalSections,dropAddBasis:d.dropAddBasis};
   }
   // Print = the Financial Aid paper form, filled in with the answers on this screen.
   $('#printBtn').addEventListener('click',function(){
@@ -866,10 +912,124 @@ fillSelect('term',termOptions());
     list.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o)});
     if(keep&&list.indexOf(keep)>-1)sel.value=keep;
   }
+  function fmtOpt(sec){return sec.section+' \u00b7 starts '+fmtDate(sec.startDate)}
+  function setOptions(sel,list,placeholder){
+    var keep=sel.value;
+    sel.innerHTML='';
+    var o0=document.createElement('option');o0.value='';o0.textContent=placeholder;sel.appendChild(o0);
+    list.forEach(function(it){var o=document.createElement('option');o.value=it.value;o.textContent=it.label;sel.appendChild(o)});
+    if(list.length===1)sel.value=list[0].value;else if(keep&&list.some(function(it){return it.value===keep}))sel.value=keep;
+  }
+  function schedPrograms(){var seen={};SCHED.sections.forEach(function(x){seen[x.program]=1});return PROGRAMS.filter(function(p){return seen[p]})}
+  function schedTerms(program){var seen={},out=[];SCHED.sections.forEach(function(x){if(x.program===program&&!seen[x.term]){seen[x.term]=1;out.push(x.term)}});return out}
+  function schedSections(program,term){return SCHED.sections.filter(function(x){return x.program===program&&x.term===term})}
+  function findSection(program,term,section){return SCHED.sections.filter(function(x){return x.program===program&&x.term===term&&x.section===section})[0]||null}
+
+  // Everything the student has picked so far (their main section first, then any additional ones)
+  function selectedPicks(){
+    var picks=[],seen={};
+    function add(program,term,section){
+      var row=findSection(program,term,section);
+      if(!row)return;
+      var key=[program,term,section].join('|');
+      if(seen[key])return;
+      seen[key]=1;picks.push(row);
+    }
+    add($('#program').value,$('#termPick').value,$('#section').value);
+    extraRows.forEach(function(r){add(r.querySelector('.x-program').value,r.querySelector('.x-term').value,r.querySelector('.x-section').value)});
+    return picks;
+  }
+  // Start date, term and drop/add end follow the chosen section(s); with several, the EARLIEST drop/add date applies.
+  function refreshDates(){
+    if(!SCHED.on)return;
+    var picks=selectedPicks().slice().sort(function(a,b){return a.dropAddEnds.localeCompare(b.dropAddEnds)||a.startDate.localeCompare(b.startDate)});
+    var termSel=$('#term');termSel.innerHTML='';
+    var o=document.createElement('option');o.value=picks.length?picks[0].term:'';o.textContent=picks.length?picks[0].term:'Choose your program, term and section below';termSel.appendChild(o);termSel.value=o.value;
+    $('#start').value=picks.length?picks[0].startDate:'';
+    $('#dropadd').value=picks.length?picks[0].dropAddEnds:'';
+    var note=$('#basisNote');
+    if(picks.length){
+      note.hidden=false;
+      note.textContent=picks.length>1?'You chose more than one section, so the earliest drop/add date applies: '+fmtDate(picks[0].dropAddEnds)+'.':'Calculated from your section\u2019s start date: '+SCHED.basis+'.';
+    }else note.hidden=true;
+    ['term','dropadd'].forEach(function(id){var b=$('#'+id).closest('.field');if(picks.length){b.classList.remove('has-error');$('#'+id).classList.remove('invalid')}});
+    update();
+  }
+  function cascade(progSel,termSel,secSel){
+    var prog=progSel.value;
+    setOptions(termSel,prog?schedTerms(prog).map(function(t){return {value:t,label:t}}):[],'Choose your term');
+    var term=termSel.value;
+    setOptions(secSel,(prog&&term)?schedSections(prog,term).map(function(x){return {value:x.section,label:fmtOpt(x)}}):[],'Choose your section');
+  }
+  function wireCascade(progSel,termSel,secSel){
+    progSel.addEventListener('change',function(){cascade(progSel,termSel,secSel);refreshDates()});
+    termSel.addEventListener('change',function(){
+      var prog=progSel.value,term=termSel.value;
+      setOptions(secSel,(prog&&term)?schedSections(prog,term).map(function(x){return {value:x.section,label:fmtOpt(x)}}):[],'Choose your section');
+      refreshDates();
+    });
+    secSel.addEventListener('change',refreshDates);
+  }
+  function mkField(label,cls,placeholder){
+    var f=document.createElement('div');f.className='field';
+    var l=document.createElement('label');l.textContent=label;
+    var sel=document.createElement('select');sel.className=cls;
+    var o=document.createElement('option');o.value='';o.textContent=placeholder;sel.appendChild(o);
+    f.appendChild(l);f.appendChild(sel);return f;
+  }
+  function refreshExtraUI(){
+    var can=extraRows.length+1<SCHED.max;
+    $('#addSection').hidden=!can;
+    $('#extraHint').textContent=SCHED.multi==='earliest'?'You can add up to '+(SCHED.max-1)+' more. If you are enrolled in more than one section, your drop/add period ends on the earliest date.':'';
+    extraRows.forEach(function(r,i){r.querySelector('h3').textContent='Additional section '+(i+1)});
+  }
+  function addExtra(){
+    if(extraRows.length+1>=SCHED.max)return;
+    var row=document.createElement('div');row.className='extra-row';
+    var h=document.createElement('h3');row.appendChild(h);
+    var grid=document.createElement('div');grid.className='grid';
+    var fp=mkField('Program of study','x-program','Choose your program'),ft=mkField('Term','x-term','Choose your term'),fs=mkField('Section','x-section','Choose your section');
+    [fp,ft,fs].forEach(function(f){grid.appendChild(f)});row.appendChild(grid);
+    var progSel=fp.querySelector('select'),termSel=ft.querySelector('select'),secSel=fs.querySelector('select');
+    setOptions(progSel,schedPrograms().map(function(p){return {value:p,label:p}}),'Choose your program');
+    wireCascade(progSel,termSel,secSel);
+    var rm=document.createElement('button');rm.type='button';rm.className='btn alt small remove';rm.textContent='Remove this section';
+    rm.addEventListener('click',function(){row.remove();extraRows.splice(extraRows.indexOf(row),1);refreshExtraUI();refreshDates()});
+    row.appendChild(rm);
+    $('#extraRows').appendChild(row);extraRows.push(row);refreshExtraUI();
+    try{progSel.focus()}catch(_){}
+  }
+  function enterScheduleMode(){
+    SCHED.on=true;
+    var progs=schedPrograms();
+    setOptions($('#program'),progs.map(function(p){return {value:p,label:p}}),'Choose your program');
+    $('#termPickField').hidden=false;$('#sectionField').hidden=false;$('#startHint').hidden=false;
+    $('#start').readOnly=true;$('#dropadd').readOnly=true;$('#term').disabled=true;
+    $('#start').value='';$('#dropadd').value='';
+    $('#err-term').textContent='Choose your program, term and section below.';
+    $('#err-dropadd').textContent='Choose your program, term and section below.';
+    $('#noSections').hidden=progs.length>0;
+    if(!wiredPrimary){wireCascade($('#program'),$('#termPick'),$('#section'));wiredPrimary=true}
+    cascade($('#program'),$('#termPick'),$('#section'));
+    $('#addSection').addEventListener('click',addExtra);
+    $('#extraWrap').hidden=!(SCHED.multi==='earliest'&&SCHED.max>1&&progs.length>0);
+    refreshExtraUI();refreshDates();
+  }
+  var wiredPrimary=false;
+  function applyOptions(j){
+    if(!(j&&j.ok&&Array.isArray(j.programs)&&Array.isArray(j.terms)&&j.programs.length&&j.terms.length))return;
+    refill('program',j.programs);refill('term',j.terms);
+    var sc=j.schedule;
+    if(sc&&sc.active&&Array.isArray(sc.sections)){
+      SCHED.sections=sc.sections;SCHED.multi=sc.multiSection||'single';SCHED.max=sc.maxSections||1;SCHED.basis=sc.basis||'';SCHED.version=sc.version||0;
+      enterScheduleMode();
+    }
+    update();
+  }
   if(LIVE&&window.fetch){
     fetch('/api/forms/financial-responsibility/options',{credentials:'same-origin'})
       .then(function(r){return r.ok?r.json():null})
-      .then(function(j){if(j&&j.ok&&Array.isArray(j.programs)&&Array.isArray(j.terms)&&j.programs.length&&j.terms.length){refill('program',j.programs);refill('term',j.terms);update()}})
+      .then(applyOptions)
       .catch(function(){});
   }
 
