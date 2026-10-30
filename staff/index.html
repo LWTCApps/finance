@@ -124,7 +124,7 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
 <div class="wrap">
   <header class="top">
     <a href="../" aria-label="Financial Aid home"><span class="logo" role="img" aria-label="Lorenzo Walker Technical College"></span></a>
-    <div class="who">Signed in as <strong id="me">…</strong><br><a href="../">Financial Aid home</a> &middot; <a href="/cdn-cgi/access/logout">Sign out</a></div>
+    <div class="who">Signed in as <strong id="me">…</strong><br><a href="../">Financial Aid home</a> &middot; <a href="schedule/" id="schedLink" hidden>Schedule admin</a><span id="schedSep" hidden> &middot; </span><a href="/cdn-cgi/access/logout">Sign out</a></div>
   </header>
 
   <main>
@@ -429,6 +429,14 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
     if(!item)return;
     ['studentName','studentId','phone','email','summary'].forEach(function(k){if(item[k]!=null)current[k]=item[k]});
     (current.fields||[]).forEach(function(f){if(f.editable&&item.values&&Object.prototype.hasOwnProperty.call(item.values,f.key))f.value=item.values[f.key]});
+    if(item.dropAddOverride){
+      var ex=(current.fields||[]).filter(function(f){return f.key==='dropAddOverride'})[0];
+      if(ex)ex.value=item.dropAddOverride;
+      else{
+        var at=-1;(current.fields||[]).forEach(function(f,i){if(f.section==='Student')at=i});
+        current.fields.splice(at+1,0,{key:'dropAddOverride',label:'Drop/add override (staff)',section:'Student',type:'readonly',editable:false,required:false,value:item.dropAddOverride});
+      }
+    }
   }
 
   $('#dClose').addEventListener('click',function(){if(changedKeys().length&&!window.confirm('Discard your unsaved changes?'))return;$('#dlg').close()});
@@ -446,6 +454,7 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
       fafsaStatus:m.fafsaStatus,fundingSources:Array.isArray(m.fundingSources)?m.fundingSources:[],otherFunding:m.otherFunding,
       initials:String(m.initials||'').split(',').map(function(x){return x.trim()}),
       signature:m.signature,signatureDate:m.signatureDate,printedName:m.printedName,
+      section:m.section,dropAddBasis:m.dropAddBasis,dropAddOverride:m.dropAddOverride,additionalSections:m.additionalSections?String(m.additionalSections).split('\n').filter(Boolean):[],
       under18:String(m.under18||'').toLowerCase()==='yes',guardianSignature:m.guardianSignature,guardianDate:m.guardianDate,
       // Office-use box: only what the console already knows. The rest is left for staff to complete by hand.
       office:{docOnFile:st(i)==='Funding on file',balanceDue:(i.balanceDue===''||i.balanceDue==null)?'':Number(i.balanceDue).toFixed(2),reviewedBy:i.reviewedBy||'',reviewedAt:i.reviewedAt||''}
@@ -480,6 +489,14 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
     }
     var btn=$('#dSave');btn.disabled=true;setMsg('Saving\u2026');
     var body={id:current.id,formType:current.formType||'',status:$('#fStatus').value,balanceDue:$('#balWrap').hidden?'':$('#fBal').value,staffNotes:$('#fNotes').value};
+    // The drop/add end date normally comes from the course schedule. Changing it by hand is an override and needs a reason.
+    if(ch.indexOf('dropAddEnds')>-1){
+      var why=window.prompt('The drop/add end date normally comes from the course schedule.\n\nWhy is it being changed for this student? (This is recorded with your name.)');
+      if(why===null){btn.disabled=false;setMsg('');return}
+      if(why.trim().length<5){btn.disabled=false;setMsg('Enter a short reason for changing the drop/add date.',true);return}
+      var prev=(current.fields||[]).filter(function(f){return f.key==='dropAddOverride'})[0];
+      body.dropAddOverride={from:inputs.dropAddEnds.field.value,note:why.trim(),previous:prev?prev.value:''};
+    }
     if(ch.length){
       body.values={};
       Object.keys(inputs).forEach(function(k){body.values[k]=inputs[k].get()});
@@ -502,7 +519,7 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
   $('#sort').addEventListener('change',render);
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&!loading)load()});
 
-  api('/api/staff/me').then(function(j){$('#me').textContent=j.email}).catch(function(){$('#me').textContent='unknown'});
+  api('/api/staff/me').then(function(j){$('#me').textContent=j.email;if(j.scheduleAdmin===true){$('#schedLink').hidden=false;$('#schedSep').hidden=false}}).catch(function(){$('#me').textContent='unknown'});
   api('/api/staff/forms').then(function(j){forms=j.forms||[];render()}).catch(function(){}).then(function(){load()});
 })();
 </script>
