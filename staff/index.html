@@ -102,6 +102,7 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
 .review .full{grid-column:1/-1}
 @media(max-width:620px){.review,.fgrid{grid-template-columns:1fr}}
 .dfoot{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:14px 20px;border-top:1px solid var(--line)}
+.files{margin:2px 0 0;padding-left:18px}.files li{margin:3px 0}
 .msg{font-weight:600;min-height:1.4em}.msg.err{color:var(--error)}
 .reviewed{font-size:14px;color:var(--muted);margin:8px 0 0}
 /* ---- Printing ----
@@ -181,7 +182,10 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
 </dialog>
 
 
-<script src="../assets/print-sheet.js?v=20261028"></script>
+<script src="../assets/qrcode.js?v=20261030"></script>
+<script src="../assets/form-runtime.js?v=20261030"></script>
+<script src="../assets/form-defaults.js?v=20261030"></script>
+<script src="../assets/print-sheet.js?v=20261030"></script>
 <script>
 (function(){
   var STATUSES=['New','In review','Funding on file','Balance due','Complete'];
@@ -193,11 +197,12 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
   function slug(s){return String(s||'New').replace(/\s+/g,'-')}
   function fmtD(v){if(!v)return '';var p=String(v).slice(0,10).split('-');if(p.length!==3)return v;return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
   function fmtDT(v){if(!v)return '';var d=new Date(v);return isNaN(d)?v:d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
+  var ME={perms:[],menus:{},can:function(k){return this.perms.indexOf(k)>-1}};
   function api(path,opts){
     opts=opts||{};opts.credentials='same-origin';
     return fetch(path,opts).then(function(r){
-      if(r.status===401||r.status===403){throw {auth:true}}
-      return r.json().catch(function(){return {}}).then(function(j){if(!r.ok||j.ok===false)throw {status:r.status,field:j.field};return j});
+      if(r.status===401){throw {auth:true}}
+      return r.json().catch(function(){return {}}).then(function(j){if(r.status===403)throw {forbidden:true,permission:j.permission};if(!r.ok||j.ok===false)throw {status:r.status,field:j.field,error:j.error};return j});
     });
   }
   function banner(msg){var b=$('#banner');b.textContent=msg||'';b.classList.toggle('show',!!msg)}
@@ -309,6 +314,7 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
       $('#updated').textContent='Updated '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'. Refreshes automatically every minute.';
     }).catch(function(e){
       if(e&&e.auth){banner('Your sign-in expired. Reload the page to sign in again.');return}
+      if(e&&e.forbidden){banner('You don\u2019t have permission to see submissions. Ask a Financial Aid administrator to give you access.');return}
       failures++;banner('Reconnecting\u2026 showing the last data we received.');
     }).then(function(){loading=false;$('#refresh').disabled=false;schedule()});
   }
@@ -332,6 +338,21 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
   function fieldBox(f){
     var box=el('div','fld'+(f.type==='multiselect'?' wide':''));
     var id='f_'+(f.key||Math.random().toString(36).slice(2));
+    if(f.type==='files'){
+      box.className+=' wide';box.appendChild(el('span','lab',f.label));
+      var ul=el('ul','files');
+      (f.value||[]).forEach(function(d){
+        var li=el('li');
+        var size=d.size?' ('+(d.size<1048576?Math.max(1,Math.round(d.size/1024))+' KB':(d.size/1048576).toFixed(1)+' MB')+')':'';
+        li.appendChild(el('strong',null,d.label||'Document'));li.appendChild(document.createTextNode(' \u2014 '));
+        if(ME.can('documents.view')&&current){
+          var a=el('a',null,(d.name||'file')+size);a.href='/api/staff/documents/'+encodeURIComponent(current.reference)+'/'+encodeURIComponent(d.id)+'?form='+encodeURIComponent(current.formType||'');a.setAttribute('download',d.name||'');a.rel='noopener';li.appendChild(a);
+        }else li.appendChild(document.createTextNode((d.name||'file')+size+' (you don\u2019t have permission to open documents)'));
+        ul.appendChild(li);
+      });
+      if(!(f.value||[]).length)ul.appendChild(el('li',null,'\u2014'));
+      box.appendChild(ul);return box;
+    }
     if(!f.editable){
       box.appendChild(el('span','lab',f.label));
       box.appendChild(el('div','val',f.value||'\u2014'));
@@ -444,40 +465,44 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
   /* ---- Print: the paper document ----
      Financial Responsibility submissions print as the Financial Aid form (assets/print-sheet.js),
      filled in with the saved values. Anything else prints the detail window. */
-  var PRINTERS={'financial-responsibility':true};
   function sheetValues(i){
     var m={};(i.fields||[]).forEach(function(f){if(f.key)m[f.key]=f.value});
-    return {
-      term:m.term,dropAddEnds:m.dropAddEnds,
+    var pr=i.print||{};
+    var base={
       studentName:m.studentName||i.studentName,studentId:m.studentId||i.studentId,phone:m.phone||i.phone,email:m.email||i.email,
-      program:m.program,startDate:m.startDate,
-      fafsaStatus:m.fafsaStatus,fundingSources:Array.isArray(m.fundingSources)?m.fundingSources:[],otherFunding:m.otherFunding,
       initials:String(m.initials||'').split(',').map(function(x){return x.trim()}),
       signature:m.signature,signatureDate:m.signatureDate,printedName:m.printedName,
-      section:m.section,dropAddBasis:m.dropAddBasis,dropAddOverride:m.dropAddOverride,additionalSections:m.additionalSections?String(m.additionalSections).split('\n').filter(Boolean):[],
       under18:String(m.under18||'').toLowerCase()==='yes',guardianSignature:m.guardianSignature,guardianDate:m.guardianDate,
-      // Office-use box: only what the console already knows. The rest is left for staff to complete by hand.
-      office:{docOnFile:st(i)==='Funding on file',balanceDue:(i.balanceDue===''||i.balanceDue==null)?'':Number(i.balanceDue).toFixed(2),reviewedBy:i.reviewedBy||'',reviewedAt:i.reviewedAt||''}
+      agreed:pr.agreed||[],customAnswers:pr.customAnswers||[],documents:pr.documents||[]
     };
+    if((i.formType||'')!=='financial-responsibility')return base;
+    base.term=m.term;base.dropAddEnds=m.dropAddEnds;base.program=m.program;base.startDate=m.startDate;
+    base.fafsaStatus=m.fafsaStatus;base.fundingSources=Array.isArray(m.fundingSources)?m.fundingSources:[];base.otherFunding=m.otherFunding;
+    base.section=m.section;base.dropAddBasis=m.dropAddBasis;base.dropAddOverride=m.dropAddOverride;
+    base.additionalSections=m.additionalSections?String(m.additionalSections).split('\n').filter(Boolean):[];
+    // Office-use box: only what the console already knows. The rest is left for staff to complete by hand.
+    base.office={docOnFile:st(i)==='Funding on file',balanceDue:(i.balanceDue===''||i.balanceDue==null)?'':Number(i.balanceDue).toFixed(2),reviewedBy:i.reviewedBy||'',reviewedAt:i.reviewedAt||''};
+    return base;
   }
   // Only submissions saved with their full set of values (new format) can print as the form.
-  function sheetReady(i){
-    var keys={};(i.fields||[]).forEach(function(f){if(f.key)keys[f.key]=1});
-    return !!(window.LWTCSheet&&PRINTERS[i.formType||'']&&keys.studentName&&keys.signature&&keys.initials);
-  }
+  function printable(i){var keys={};(i.fields||[]).forEach(function(f){if(f.key)keys[f.key]=1});return !!(window.LWTCSheet&&keys.signature&&keys.initials)}
   $('#dPrint').addEventListener('click',function(){
     if(!current)return;
     if(changedKeys().length&&!window.confirm('You have unsaved changes. Print the last saved version?'))return;
-    if(sheetReady(current)){
+    var i=current,fin=(i.formType||'')==='financial-responsibility';
+    if(printable(i)){
       setMsg('');
-      window.LWTCSheet.print(sheetValues(current),{
-        title:current.formLabel+' - '+(current.studentName||'')+' - '+(current.reference||''),
-        note:current.reference?('Ref. '+current.reference+' \u00b7 received '+fmtDT(current.submitted)):''
+      // print it with the wording the student saw: the version of the form it was submitted under
+      var v=(i.print&&i.print.formVersion)||0;
+      api('/api/staff/form-config/'+encodeURIComponent(i.formType)+(v?'?version='+v:'')).catch(function(){return null}).then(function(j){
+        var cfg=j&&j.config?j.config:(fin?window.LWTC_DEFAULT_FINANCIAL:null);
+        var meta={config:cfg,office:j&&j.office,title:i.formLabel+' - '+(i.studentName||'')+' - '+(i.reference||''),note:i.reference?('Ref. '+i.reference+' \u00b7 received '+fmtDT(i.submitted)):''};
+        if(fin)window.LWTCSheet.print(sheetValues(i),meta);else window.LWTCSheet.printGeneric(sheetValues(i),meta);
       });
       return;
     }
     document.body.classList.remove('print-sheet');
-    if(PRINTERS[current.formType||''])setMsg('This submission was saved before its full answers were stored, so it prints as a detail sheet. New submissions print as the form.');
+    if(fin)setMsg('This submission was saved before its full answers were stored, so it prints as a detail sheet. New submissions print as the form.');
     window.print();
   });
   $('#dSave').addEventListener('click',function(){
@@ -511,7 +536,7 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
       $('#dReviewed').textContent='Last reviewed by '+current.reviewedBy+' just now.';
     }).catch(function(e){
       if(e&&e.field&&inputs[e.field]){inputs[e.field].box.classList.add('bad');setMsg('That value isn\u2019t accepted. Check the highlighted field.',true);return}
-      setMsg(e&&e.auth?'Your sign-in expired. Reload the page.':'Couldn\u2019t save. Try again.',true);
+      setMsg(e&&e.auth?'Your sign-in expired. Reload the page.':e&&e.forbidden?'You don\u2019t have permission to make that change.':'Couldn\u2019t save. Try again.',true);
     }).then(function(){btn.disabled=false});
   });
   $('#refresh').addEventListener('click',function(){load(true)});
@@ -519,8 +544,24 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
   $('#sort').addEventListener('change',render);
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&!loading)load()});
 
-  api('/api/staff/me').then(function(j){$('#me').textContent=j.email;if(j.scheduleAdmin===true){$('#schedLink').hidden=false;$('#schedSep').hidden=false}}).catch(function(){$('#me').textContent='unknown'});
-  api('/api/staff/forms').then(function(j){forms=j.forms||[];render()}).catch(function(){}).then(function(){load()});
+  function applyMe(j){
+    $('#me').textContent=j.email;ME.perms=j.permissions||[];ME.menus=j.menus||{};
+    var m=ME.menus;
+    if(m.schedule||j.scheduleAdmin===true){$('#schedLink').hidden=false;$('#schedSep').hidden=false}
+    if(m.admin&&!$('#adminLink')){
+      var a=el('a',null,'Administration');a.id='adminLink';a.href='../admin/';
+      var who=$('.who'),h=$('#schedLink');who.insertBefore(document.createTextNode(' \u00b7 '),h);who.insertBefore(a,h.previousSibling);
+    }
+    $('#dPrint').hidden=!ME.can('console.print');
+    if(!ME.can('console.edit')){$('#dSave').hidden=true;['fStatus','fNotes','fBal'].forEach(function(id){var e=$('#'+id);if(e)e.disabled=true})}
+    if(m.console===false){banner('You can sign in, but you don\u2019t have permission to see submissions. Ask a Financial Aid administrator to give you access.');return false}
+    return true;
+  }
+  api('/api/staff/me').then(function(j){
+    var ok=applyMe(j);
+    if(ok===false)return;
+    return api('/api/staff/forms').then(function(f){forms=f.forms||[];render()}).catch(function(){}).then(function(){load()});
+  }).catch(function(){$('#me').textContent='unknown';api('/api/staff/forms').then(function(f){forms=f.forms||[];render()}).catch(function(){}).then(function(){load()})});
 })();
 </script>
 </body>

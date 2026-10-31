@@ -107,3 +107,18 @@
 #printSheet .p-oline .u{display:inline-block;min-width:1.3in;border-bottom:1pt solid var(--ink);font-weight:600;padding:0 3pt;min-height:12pt}
 #printSheet .p-oline .u.wide{min-width:2.6in}
 #printSheet .p-foot{position:absolute;left:0;right:0;bottom:0;border-top:.75pt solid var(--line);padding-top:4pt;font-size:7.6pt;color:var(--muted);display:flex;justify-content:space-between;gap:12pt}
+
+/* ---- configurable parts: additional answers, documents, generic forms ---- */
+#printSheet .p-qa{border-top:.6pt solid var(--muted)}
+#printSheet .p-qr2{display:grid;grid-template-columns:2.6in 1fr;gap:10pt;padding:5pt 4pt;border-bottom:.6pt solid var(--line);break-inside:avoid}
+#printSheet .p-q{font-weight:700;font-size:9.4pt;color:var(--muted)}
+#printSheet .p-a{font-size:10pt;font-weight:600;white-space:pre-wrap;overflow-wrap:anywhere}
+#printSheet .p-docs{margin:4pt 0 8pt;padding-left:16pt;font-size:9.6pt}
+#printSheet .p-docs li{margin-bottom:3pt}
+#printSheet .p-pg{white-space:nowrap}
+#printSheet .pp.flow{height:auto;overflow:visible;position:static;break-after:auto;page-break-after:auto}
+#printSheet .p-foot.flowfoot{position:static;margin-top:18pt}
+#printSheet .sheet.gen .p-ack,#printSheet .sheet.gen .p-sig{break-inside:avoid}
+@media print{
+  #printSheet .sheet.gen .p-ar{break-inside:avoid}
+}

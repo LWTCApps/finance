@@ -240,7 +240,7 @@ details{margin:10px 0}details>summary{cursor:pointer;font-weight:700;padding:6px
     opts=opts||{};opts.credentials='same-origin';
     return fetch(path,opts).then(function(r){
       return r.json().catch(function(){return {}}).then(function(j){
-        if(r.status===401||r.status===403){throw {auth:true}}
+        if(r.status===401||r.status===403){throw {auth:true,status:r.status,body:j}}
         if(!r.ok||j.ok===false){var e={status:r.status,error:j.error,field:j.field,body:j};throw e}
         return j;
       });
@@ -574,7 +574,10 @@ details{margin:10px 0}details>summary{cursor:pointer;font-weight:700;padding:6px
     if(!j.kv){note($('#parseNote'),'err','The schedule storage (SCHEDULE_KV) is not connected to the Worker yet. See the build guide, step 1.');return}
     return load().then(function(){if(!STATE.settings.confirmed)showTab('settings')});
   }).catch(function(e){
-    if(e&&e.auth){$('#denied').hidden=false;$('#me').textContent=''}
+    if(e&&e.auth){
+      $('#denied').hidden=false;$('#me').textContent='';
+      if(e.body&&e.body.reason){var d=el('p','muted small','Details (debug mode is on): '+e.body.reason+(e.body.signedInAs?' You are signed in as '+e.body.signedInAs+'.':''));$('#denied').insertBefore(d,$('#denied').lastElementChild)}
+    }
     else{$('#app').hidden=false;note($('#parseNote'),'err','Couldn\u2019t load the schedule. Reload the page.')}
   });
 })();
