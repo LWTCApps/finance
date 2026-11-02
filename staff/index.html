@@ -127,8 +127,8 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
    Anything else prints the open detail window, as below. */
 @media print{
   body:not(.print-sheet)>.bar,body:not(.print-sheet)>.wrap{display:none!important}
-  body:not(.print-sheet) *{visibility:hidden}
-  body:not(.print-sheet) dialog,body:not(.print-sheet) dialog *{visibility:visible}
+  body:not(.print-sheet):not(.print-export) *{visibility:hidden}
+  body:not(.print-sheet):not(.print-export) dialog,body:not(.print-sheet):not(.print-export) dialog *{visibility:visible}
   body:not(.print-sheet) dialog{position:absolute;inset:0 auto auto 0;margin:0;width:100%;max-height:none;border:0;border-radius:0}
   body:not(.print-sheet) dialog::backdrop{background:none;display:none}
   body:not(.print-sheet) .dbody{max-height:none;overflow:visible}
@@ -136,6 +136,7 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
+<link rel="stylesheet" href="../assets/console-export.css?v=20261104">
 </head>
 <body>
 <div class="bar" aria-hidden="true"><i class="h-orange"></i><i class="h-green"></i><i class="h-gold"></i><i class="h-blue"></i></div>
@@ -168,6 +169,7 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
           <option value="status">Status</option>
         </select></div>
       <button class="btn alt" id="refresh" type="button">Refresh</button>
+      <button class="btn" id="exportBtn" type="button" hidden>Export results…</button>
     </div>
 
     <div class="filters" id="filters" role="group" aria-label="Filter submissions"></div>
@@ -205,6 +207,7 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
 </dialog>
 
 
+<script src="../assets/console-export.js?v=20261104"></script>
 <script src="../assets/qrcode.js?v=20261030"></script>
 <script src="../assets/form-runtime.js?v=20261030"></script>
 <script src="../assets/form-defaults.js?v=20261030"></script>
@@ -215,6 +218,7 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
   var $=function(s){return document.querySelector(s)};
   var forms=[];            // registry from the Worker: [{id,label,balanceDue}]
   var items=[],formFilter='all',statusFilter='All',current=null,failures=0,timer=null,loading=false;
+  var lastList=[],lastGroupBy=null;
   function newSet(){return Object.create(null)}
   var selected={program:newSet(),term:newSet(),fund:newSet(),fafsa:newSet(),docs:newSet()},builtSig='';
 
@@ -353,6 +357,8 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
     renderTabs();renderStats();renderFilters();
     var mode=$('#sort').value,byForm=mode.indexOf('form-')===0,byProg=mode.indexOf('prog-')===0,grouped=byForm;
     var list=visible().sort(SORTS[mode]);
+    lastList=list;lastGroupBy=byForm?function(i){return i.formLabel||'Unspecified'}:byProg?function(i){return progOf(i)||'No program (other forms)'}:null;
+    var xb=$('#exportBtn');if(xb)xb.disabled=!list.length;
     var showFormCol=!byForm&&formFilter==='all';
     var total=items.filter(inScopeForm).length;
     $('#resultCount').textContent=(list.length===total?'Showing all ':'Showing '+list.length+' of ')+total+(total===1?' submission':' submissions')+(activeCount()||statusFilter!=='All'||$('#q').value.trim()?' (filtered)':'');
@@ -638,12 +644,88 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
     }).then(function(){btn.disabled=false});
   });
   $('#refresh').addEventListener('click',function(){load(true)});
+  /* ---- export the list as it is on screen: same filters, same order ---- */
+  var XKEY='lwtc.export.v1',xdlg=null;
+  function xload(){try{return JSON.parse(localStorage.getItem(XKEY))||{}}catch(e){return {}}}
+  function xsave(o){try{localStorage.setItem(XKEY,JSON.stringify(o))}catch(e){}}
+  function filterParts(){
+    var parts=[];FACETS.forEach(function(f){var v=Object.keys(selected[f.key]).sort(f.order);if(v.length)parts.push(f.label+': '+v.join(', '))});
+    if(statusFilter!=='All')parts.push('Status: '+statusFilter);return parts;
+  }
+  function scopeText(){return formFilter==='all'?'All forms':formInfo(formFilter).label}
+  function sortText(){var o=$('#sort').options[$('#sort').selectedIndex];return o?o.textContent:''}
+  function openExport(){
+    if(!lastList.length)return;
+    var saved=xload(),fmt=saved.fmt||'xlsx',touched=false;
+    if(!xdlg){xdlg=document.createElement('dialog');xdlg.id='exportDlg';xdlg.setAttribute('aria-labelledby','xTitle');document.body.appendChild(xdlg)}
+    xdlg.textContent='';
+    var h=el('div','xh','Export results');h.id='xTitle';xdlg.appendChild(h);
+    var body=el('div','xb'),foot=el('div','xf');
+    var sum=el('div','xsum'),parts=filterParts(),q=$('#q').value.trim();
+    var l1=el('div');l1.appendChild(el('b',null,lastList.length+(lastList.length===1?' submission':' submissions')));l1.appendChild(document.createTextNode(' \u00b7 '+scopeText()));sum.appendChild(l1);
+    var l2=el('div');l2.appendChild(el('b',null,'Filters: '));l2.appendChild(document.createTextNode((parts.length?parts.join(' \u00b7 '):'none')+(q?' \u00b7 Search: \u201c'+q+'\u201d':'')));sum.appendChild(l2);
+    var l3=el('div');l3.appendChild(el('b',null,'Order: '));l3.appendChild(document.createTextNode(sortText()));sum.appendChild(l3);
+    body.appendChild(sum);
+    var fs=el('fieldset');fs.appendChild(el('legend',null,'Format'));var grid=el('div','fmts');
+    [['pdf','Branded PDF','A report with the LWTC logo and colours, ready to print or save as a PDF'],['xlsx','Excel','A modern .xlsx workbook with real dates and filter buttons'],['csv','CSV','Plain data for any program'],['sheets','Google Sheets','Copies the table and opens a new Google Sheet']].forEach(function(f){
+      var lb=el('label','fmt'),r=el('input');r.type='radio';r.name='xfmt';r.value=f[0];r.checked=f[0]===fmt;lb.appendChild(r);var t=el('span',null,f[1]);t.appendChild(el('small',null,f[2]));lb.appendChild(t);grid.appendChild(lb);
+    });
+    fs.appendChild(grid);body.appendChild(fs);
+    var cs=el('fieldset');cs.appendChild(el('legend',null,'Columns'));var cols=el('div','cols'),boxes=[];
+    var groups={};LWTCExport.columns.forEach(function(c){(groups[c.group]=groups[c.group]||[]).push(c)});
+    Object.keys(groups).forEach(function(g){
+      var d=el('div','cg');d.appendChild(el('h4',null,g));
+      groups[g].forEach(function(c){var lb=el('label'),cb=el('input');cb.type='checkbox';cb.value=c.id;lb.appendChild(cb);lb.appendChild(el('span',null,c.label));d.appendChild(lb);boxes.push(cb);
+        cb.addEventListener('change',function(){touched=true;var st=xload();st.cols=st.cols||{};st.cols[kind()]=chosen();xsave(st)})});
+      cols.appendChild(d);
+    });
+    cs.appendChild(cols);var note=el('p','note');cs.appendChild(note);body.appendChild(cs);
+    body.appendChild(el('p','note','Exports contain student information. Store and share them securely, and delete them when you no longer need them. Each export is recorded in the activity log.'));
+    function kind(){return fmtNow()==='pdf'?'pdf':'table'}
+    function fmtNow(){return xdlg.querySelector('input[name=xfmt]:checked').value}
+    function chosen(){return boxes.filter(function(b){return b.checked}).map(function(b){return b.value})}
+    function applyCols(){var st=xload(),k=kind(),want=(st.cols&&st.cols[k])||LWTCExport.defaults[k==='pdf'?'pdf':'table'];boxes.forEach(function(b){b.checked=want.indexOf(b.value)>-1});describe()}
+    function describe(){var f=fmtNow();note.textContent=f==='pdf'?'The PDF is laid out landscape. About 9 columns read comfortably; more columns use smaller text. Choose "Save as PDF" in the print window.':f==='sheets'?'Copies the table to your clipboard and opens a new Google Sheet. Click cell A1 and press Ctrl+V (\u2318V on a Mac).':f==='xlsx'?'Includes a second sheet, "About this export", listing the filters used.':'UTF-8 with a byte-order mark, so Excel reads accents correctly.'}
+    [].forEach.call(xdlg.querySelectorAll('input[name=xfmt]'),function(){});
+    grid.addEventListener('change',function(){applyCols()});
+    var err=el('div','xerr');err.setAttribute('role','alert');foot.appendChild(err);
+    var cancel=el('button','btn alt','Cancel');cancel.type='button';cancel.addEventListener('click',function(){xdlg.close()});
+    var go=el('button','btn','Export');go.type='button';foot.appendChild(cancel);foot.appendChild(go);
+    xdlg.appendChild(body);xdlg.appendChild(foot);
+    applyCols();
+    go.addEventListener('click',function(){
+      var f=fmtNow(),ids=chosen();err.textContent='';
+      if(!ids.length){err.textContent='Choose at least one column.';return}
+      var st=xload();st.fmt=f;xsave(st);
+      go.disabled=true;go.textContent='Preparing\u2026';
+      api('/api/staff/export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({format:f,form:formFilter,count:lastList.length,filters:filterParts().join('; '),searched:!!q})}).then(function(){
+        var list=lastList.slice(),m=LWTCExport.matrix(list,ids),groupBy=lastGroupBy;
+        var aboutParts=[['Exported',new Date().toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'})],['Exported by',ME.email||''],['Submissions',String(list.length)],['Form',scopeText()],['Filters',parts.length?parts.join(' | '):'none'],['Search',q||'none'],['Order',sortText()],['','' ],['Notice','Contains student information. Store and share securely.']];
+        var scope=scopeText(),name=function(ext){return LWTCExport.fileName(formFilter==='all'?'results':scope,ext)};
+        if(f==='csv'){LWTCExport.download(LWTCExport.csv(m),name('csv'),'text/csv;charset=utf-8');xdlg.close();banner('Exported '+list.length+' submissions to CSV.');setTimeout(function(){banner('')},5000)}
+        else if(f==='xlsx'){LWTCExport.download(LWTCExport.xlsx(m,aboutParts),name('xlsx'),'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');xdlg.close();banner('Exported '+list.length+' submissions to Excel.');setTimeout(function(){banner('')},5000)}
+        else if(f==='pdf'){xdlg.close();return LWTCExport.printReport(m,{title:'Form results',scope:scope,sort:sortText(),filters:parts.concat(q?['Search: \u201c'+q+'\u201d']:[]),by:ME.email,groups:groupBy?list.map(groupBy):null,fileTitle:name('pdf').replace(/\.pdf$/,'')})}
+        else{
+          var tsv=LWTCExport.tsv(m);
+          if(tsv.length>1800000||!navigator.clipboard){LWTCExport.download(LWTCExport.csv(m),name('csv'),'text/csv;charset=utf-8');xdlg.close();banner('That is too much to paste, so a CSV was downloaded instead. In Google Sheets choose File, Import, Upload, and pick it.');return}
+          return navigator.clipboard.writeText(tsv).then(function(){
+            var w=window.open('https://sheets.new','_blank','noopener');xdlg.close();
+            banner(w===null?'Copied '+list.length+' submissions. Open a new Google Sheet (sheets.new), click cell A1 and press Ctrl+V.':'Copied '+list.length+' submissions. In the new Google Sheet, click cell A1 and press Ctrl+V (\u2318V on a Mac).');
+          },function(){LWTCExport.download(LWTCExport.csv(m),name('csv'),'text/csv;charset=utf-8');xdlg.close();banner('Your browser wouldn\u2019t allow copying, so a CSV was downloaded. In Google Sheets choose File, Import, Upload, and pick it.')});
+        }
+      }).catch(function(e){err.textContent=e&&e.forbidden?'You don\u2019t have permission to export.':'The export could not be recorded, so nothing was exported. Try again.'}).then(function(){go.disabled=false;go.textContent='Export'});
+    });
+    xdlg.showModal();
+  }
+  $('#exportBtn').addEventListener('click',openExport);
+
   $('#q').addEventListener('input',render);
   $('#sort').addEventListener('change',render);
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&!loading)load()});
 
   function applyMe(j){
-    $('#me').textContent=j.email;ME.perms=j.permissions||[];ME.menus=j.menus||{};
+    $('#me').textContent=j.email;ME.email=j.email;ME.perms=j.permissions||[];ME.menus=j.menus||{};
+    $('#exportBtn').hidden=!ME.can('console.export');
     var m=ME.menus;
     if(m.schedule||j.scheduleAdmin===true){$('#schedLink').hidden=false;$('#schedSep').hidden=false}
     if(m.admin&&!$('#adminLink')){
