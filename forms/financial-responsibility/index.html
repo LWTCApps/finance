@@ -258,12 +258,15 @@ var PROGRAMS=[
   "Veterinary Assisting",
   "Welding Technology"
 ];
-/* Terms: Summer, Fall and Spring for this year and the two before it, plus the upcoming Spring,
-   newest first. Rolls forward each year. Mirrors termOptions() in the Worker. */
-var TERM_YEARS_BACK=2, TERM_INCLUDE_NEXT_SPRING=true;
+/* Terms (fallback only): the live list comes from the Worker, where an administrator sets how many to show
+   (Administration, Site content, Term list). This copy is used only if the Worker can't be reached, with the
+   defaults: the current term, the next 3 and the last 4, newest first. Mirrors termOptions() in the Worker. */
+var TERM_AHEAD=3, TERM_BACK=4, SUMMER_START=5, FALL_START=9;
 function termOptions(){
-  var y=new Date().getFullYear(),out=TERM_INCLUDE_NEXT_SPRING?['Spring '+(y+1)]:[];
-  for(var k=0;k<=TERM_YEARS_BACK;k++)out.push('Fall '+(y-k),'Summer '+(y-k),'Spring '+(y-k));
+  var p=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit'}).formatToParts(new Date());
+  var y=+p.filter(function(x){return x.type==='year'})[0].value,m=+p.filter(function(x){return x.type==='month'})[0].value;
+  var cur=y*3+(m>=FALL_START?2:m>=SUMMER_START?1:0),out=[],names=['Spring','Summer','Fall'];
+  for(var i=cur+TERM_AHEAD;i>=cur-TERM_BACK;i--)out.push(names[((i%3)+3)%3]+' '+Math.floor(i/3));
   return out;
 }
 function fillSelect(id,list){
