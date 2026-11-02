@@ -41,6 +41,23 @@ h1{font:400 clamp(26px,4vw,38px)/1.1 var(--display);margin:8px 0 4px}
 .tab b{font:400 14px var(--display);background:var(--surface);border-radius:48px;padding:2px 10px;color:var(--ink)}
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:#F37026}
 .tab:hover{color:var(--ink)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}
+.fdd{position:relative}
+.fdd>summary{list-style:none;cursor:pointer;display:inline-flex;gap:8px;align-items:center;font:700 15px var(--text);border:2px solid var(--line);border-radius:48px;padding:8px 16px;background:#fff;min-height:42px}
+.fdd>summary::-webkit-details-marker{display:none}
+.fdd>summary::after{content:"\25BE";font-size:12px}
+.fdd[open]>summary{border-color:var(--ink)}
+.fdd.on>summary{border-color:#F37026;background:#FFF3EA}
+.fdd>summary b{background:#F37026;color:#fff;border-radius:48px;padding:0 8px;font-size:13px;min-width:20px;text-align:center}
+.fdd .menu{position:absolute;z-index:30;top:calc(100% + 6px);left:0;min-width:260px;max-width:min(380px,92vw);max-height:340px;overflow:auto;background:#fff;border:2px solid var(--ink);border-radius:12px;padding:8px 10px;box-shadow:0 12px 30px rgba(0,0,0,.18)}
+.fdd .menu label{display:flex;gap:10px;align-items:flex-start;font-weight:600;font-size:15px;padding:6px 4px;margin:0;cursor:pointer;border-radius:6px}
+.fdd .menu label:hover{background:var(--surface)}
+.fdd .menu input{width:20px;height:20px;margin-top:1px;flex:none;accent-color:#3A7B96}
+.fdd .menu .n{margin-left:auto;color:var(--muted);font-weight:400;padding-left:10px}
+.fdd .menu .zero{opacity:.55}
+.fdd .menu .mfoot{border-top:1px solid var(--line);margin-top:6px;padding-top:6px;text-align:right}
+.linkbtn{border:0;background:none;color:var(--link,#1F5F7A);text-decoration:underline;font:inherit;font-weight:600;cursor:pointer;padding:4px 6px}
+tr.grouprow th .gname{white-space:normal}
 
 .stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .stat{border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:48px;padding:7px 14px;font:600 15px var(--text);cursor:pointer;display:flex;gap:8px;align-items:center}
@@ -142,6 +159,9 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
         <select id="sort">
           <option value="form-new">Form type, then newest</option>
           <option value="form-name">Form type, then student A–Z</option>
+          <option value="prog-new">Program, then newest</option>
+          <option value="prog-name">Program, then student A–Z</option>
+          <option value="term">Term (newest first)</option>
           <option value="new">Newest first</option>
           <option value="old">Oldest first</option>
           <option value="name">Student A–Z</option>
@@ -149,6 +169,9 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
         </select></div>
       <button class="btn alt" id="refresh" type="button">Refresh</button>
     </div>
+
+    <div class="filters" id="filters" role="group" aria-label="Filter submissions"></div>
+    <p class="muted" id="resultCount" role="status" aria-live="polite" style="font-size:15px;margin:0 0 10px"></p>
 
     <div class="tablewrap">
       <table>
@@ -192,6 +215,8 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
   var $=function(s){return document.querySelector(s)};
   var forms=[];            // registry from the Worker: [{id,label,balanceDue}]
   var items=[],formFilter='all',statusFilter='All',current=null,failures=0,timer=null,loading=false;
+  function newSet(){return Object.create(null)}
+  var selected={program:newSet(),term:newSet(),fund:newSet(),fafsa:newSet(),docs:newSet()},builtSig='';
 
   function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
   function slug(s){return String(s||'New').replace(/\s+/g,'-')}
@@ -237,10 +262,74 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
       tab(k,formInfo(k).label,items.filter(function(i){return (i.formType||'')===k}).length);
     });
   }
+  /* ---- filter menus: tick any number of options; a submission matches if it has any ticked value in each menu ---- */
+  function fv(i,key){var f=(i.fields||[]).filter(function(x){return x.key===key})[0];return f?f.value:undefined}
+  var FAFSA_OLD={'I applied':'I have submitted my FAFSA','I will apply':'I will submit my FAFSA','I will not apply':'I will not submit my FAFSA'};
+  function termKey(t){var m=/^(Spring|Summer|Fall) (\d{4})$/.exec(t||'');return m?(+m[2])*3+['Spring','Summer','Fall'].indexOf(m[1]):-1}
+  function one(v){return (v==null||v==='')?[]:[String(v)]}
+  var FACETS=[
+    {key:'program',label:'Program',get:function(i){return one(fv(i,'program'))},order:function(a,b){return a.localeCompare(b,'en',{sensitivity:'base'})}},
+    {key:'term',label:'Term',get:function(i){return one(fv(i,'term'))},order:function(a,b){return termKey(b)-termKey(a)||a.localeCompare(b)}},
+    {key:'fund',label:'Way of paying',get:function(i){var v=fv(i,'fundingSources');return Array.isArray(v)?v.map(String):one(v)},order:function(a,b){return a.localeCompare(b,'en',{sensitivity:'base'})}},
+    {key:'fafsa',label:'FAFSA',get:function(i){var v=fv(i,'fafsaStatus');return one(FAFSA_OLD[v]||v)},order:function(a,b){return a.localeCompare(b)}},
+    {key:'docs',label:'Documents',get:function(i){var n=(i.print&&i.print.documents&&i.print.documents.length)||0;return n?['Has uploaded documents']:['No uploaded documents']},order:function(a,b){return a.localeCompare(b)},only:function(){return items.filter(inScopeForm).some(function(i){return i.print&&i.print.documents&&i.print.documents.length})}}
+  ];
+  function activeCount(){return FACETS.reduce(function(n,f){return n+Object.keys(selected[f.key]).length},0)}
+  /** Does a submission pass every filter? `skip` leaves one filter out, to count what each option would add. */
+  function passes(i,skip){
+    if(!inScopeForm(i))return false;
+    if(skip!=='status'&&statusFilter!=='All'&&st(i)!==statusFilter)return false;
+    var q=$('#q').value.trim().toLowerCase();if(q&&haystack(i).indexOf(q)<0)return false;
+    for(var n=0;n<FACETS.length;n++){
+      var f=FACETS[n],sel=selected[f.key];if(f.key===skip||!Object.keys(sel).length)continue;
+      if(!f.get(i).some(function(v){return sel[v]}))return false;
+    }
+    return true;
+  }
+  function facetOptions(f){
+    var seen={};items.filter(inScopeForm).forEach(function(i){f.get(i).forEach(function(v){seen[v]=1})});
+    Object.keys(selected[f.key]).forEach(function(v){seen[v]=1});          // keep a ticked option even if nothing has it right now
+    return Object.keys(seen).sort(f.order);
+  }
+  function renderFilters(){
+    var host=$('#filters'),active=FACETS.filter(function(f){return (!f.only||f.only())&&facetOptions(f).length});
+    var sig=active.map(function(f){return f.key+':'+facetOptions(f).join('\u0001')}).join('|');
+    if(sig!==builtSig){
+      var openKey=(host.querySelector('details[open]')||{dataset:{}}).dataset.key;
+      host.textContent='';builtSig=sig;
+      active.forEach(function(f){
+        var d=document.createElement('details');d.className='fdd';d.dataset.key=f.key;
+        var sm=document.createElement('summary');sm.appendChild(el('span',null,f.label));sm.appendChild(el('b',null,''));d.appendChild(sm);
+        var menu=el('div','menu');menu.setAttribute('role','group');menu.setAttribute('aria-label',f.label);
+        facetOptions(f).forEach(function(v){
+          var l=document.createElement('label'),c=document.createElement('input');c.type='checkbox';c.value=v;c.dataset.f=f.key;
+          c.addEventListener('change',function(){if(c.checked)selected[f.key][v]=1;else delete selected[f.key][v];render()});
+          l.appendChild(c);l.appendChild(el('span',null,v));l.appendChild(el('span','n',''));menu.appendChild(l);
+        });
+        var ft=el('div','mfoot'),cl=el('button','linkbtn','Clear '+f.label.toLowerCase());cl.type='button';cl.addEventListener('click',function(){selected[f.key]=newSet();render()});ft.appendChild(cl);menu.appendChild(ft);
+        d.appendChild(menu);if(openKey===f.key)d.open=true;host.appendChild(d);
+      });
+      var all=el('button','btn alt','Clear all filters');all.type='button';all.id='clearAll';all.addEventListener('click',function(){FACETS.forEach(function(f){selected[f.key]=newSet()});statusFilter='All';$('#q').value='';render()});host.appendChild(all);
+    }
+    // update in place so a ticked box keeps keyboard focus
+    active.forEach(function(f){
+      var d=host.querySelector('details[data-key="'+f.key+'"]');if(!d)return;
+      var rest=items.filter(function(i){return passes(i,f.key)}),n=Object.keys(selected[f.key]).length;
+      d.classList.toggle('on',n>0);var b=d.querySelector('summary b');b.textContent=n?String(n):'';b.hidden=!n;
+      [].forEach.call(d.querySelectorAll('label'),function(l){
+        var c=l.querySelector('input'),cnt=rest.filter(function(i){return f.get(i).indexOf(c.value)>-1}).length;
+        c.checked=!!selected[f.key][c.value];l.querySelector('.n').textContent=String(cnt);l.classList.toggle('zero',cnt===0&&!c.checked);
+      });
+    });
+    var ca=$('#clearAll');if(ca)ca.hidden=!(activeCount()||statusFilter!=='All'||$('#q').value.trim());
+  }
+  document.addEventListener('click',function(e){[].forEach.call(document.querySelectorAll('.fdd[open]'),function(d){if(!d.contains(e.target))d.open=false})});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){var o=document.querySelector('.fdd[open]');if(o){o.open=false;o.querySelector('summary').focus()}}});
+
   function renderStats(){
-    var scope=items.filter(inScopeForm),box=$('#stats');box.innerHTML='';
+    var box=$('#stats');box.innerHTML='';
     ['All'].concat(STATUSES).forEach(function(s){
-      var n=s==='All'?scope.length:scope.filter(function(i){return st(i)===s}).length;
+      var n=items.filter(function(i){return passes(i,'status')&&(s==='All'||st(i)===s)}).length;
       var b=el('button','stat');b.type='button';b.setAttribute('aria-pressed',String(statusFilter===s));
       b.appendChild(el('span',null,s));b.appendChild(el('b',null,String(n)));
       b.addEventListener('click',function(){statusFilter=s;render()});box.appendChild(b);
@@ -249,25 +338,24 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
 
   /* ---- filtering and sorting ---- */
   function haystack(i){return [i.studentName,i.studentId,i.reference,i.email,i.phone,i.summary,i.formLabel].concat((i.fields||[]).map(function(f){return Array.isArray(f.value)?f.value.join(' '):f.value})).join(' ').toLowerCase()}
-  function visible(){
-    var q=$('#q').value.trim().toLowerCase();
-    return items.filter(function(i){
-      if(!inScopeForm(i))return false;
-      if(statusFilter!=='All'&&st(i)!==statusFilter)return false;
-      return !q||haystack(i).indexOf(q)>-1;
-    });
-  }
+  function visible(){return items.filter(function(i){return passes(i)})}
   function byNewest(a,b){return String(b.submitted).localeCompare(String(a.submitted))}
   function byOldest(a,b){return String(a.submitted).localeCompare(String(b.submitted))}
   function byName(a,b){return String(a.studentName).localeCompare(String(b.studentName),'en',{sensitivity:'base'})||byNewest(a,b)}
   function byStatus(a,b){return STATUSES.indexOf(st(a))-STATUSES.indexOf(st(b))||byNewest(a,b)}
-  var SORTS={'form-new':byNewest,'form-name':byName,'new':byNewest,'old':byOldest,'name':byName,'status':byStatus};
+  function progOf(i){var v=fv(i,'program');return v?String(v):''}
+  function byProgram(a,b){var x=progOf(a),y=progOf(b);if(!x&&!y)return 0;if(!x)return 1;if(!y)return -1;return x.localeCompare(y,'en',{sensitivity:'base'})}
+  function byTerm(a,b){return termKey(String(fv(b,'term')||''))-termKey(String(fv(a,'term')||''))||byName(a,b)}
+  var SORTS={'form-new':byNewest,'form-name':byName,'new':byNewest,'old':byOldest,'name':byName,'status':byStatus,
+    'prog-new':function(a,b){return byProgram(a,b)||byNewest(a,b)},'prog-name':function(a,b){return byProgram(a,b)||byName(a,b)},'term':byTerm};
 
   function render(){
-    renderTabs();renderStats();
-    var mode=$('#sort').value,grouped=mode.indexOf('form-')===0;
+    renderTabs();renderStats();renderFilters();
+    var mode=$('#sort').value,byForm=mode.indexOf('form-')===0,byProg=mode.indexOf('prog-')===0,grouped=byForm;
     var list=visible().sort(SORTS[mode]);
-    var showFormCol=!grouped&&formFilter==='all';
+    var showFormCol=!byForm&&formFilter==='all';
+    var total=items.filter(inScopeForm).length;
+    $('#resultCount').textContent=(list.length===total?'Showing all ':'Showing '+list.length+' of ')+total+(total===1?' submission':' submissions')+(activeCount()||statusFilter!=='All'||$('#q').value.trim()?' (filtered)':'');
     var th=$('#thead');th.innerHTML='';
     [['Submitted',''],['Student',''],showFormCol?['Form','']:null,['Details','hide-s'],['Status','']].forEach(function(c){
       if(!c)return;var h=el('th',c[1],c[0]);th.appendChild(h);
@@ -300,6 +388,16 @@ fieldset.checks input{width:20px;height:20px;min-height:0;margin:2px 0 0;flex:no
         tr.appendChild(h);tb.appendChild(tr);
         g.forEach(addRow);
       });
+    }else if(byProg){
+      var last=null,grp=[];
+      function flush(){
+        if(last===null)return;
+        var tr=document.createElement('tr');tr.className='grouprow';var h=document.createElement('th');h.colSpan=cols;h.scope='colgroup';
+        h.appendChild(el('span','gname',last||'No program (other forms)'));h.appendChild(el('span','gmeta',grp.length+(grp.length===1?' submission':' submissions')));
+        var nNew=grp.filter(function(i){return st(i)==='New'}).length;if(nNew)h.appendChild(el('span','gmeta',nNew+' new'));
+        tr.appendChild(h);tb.appendChild(tr);grp.forEach(addRow);grp=[];
+      }
+      list.forEach(function(i){var k=progOf(i);if(last!==null&&k!==last)flush();last=k;grp.push(i)});flush();
     }else list.forEach(addRow);
 
     var em=$('#empty');em.hidden=list.length>0;
