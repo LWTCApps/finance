@@ -29,6 +29,10 @@
       <div class="card" id="officeCard"></div>
       <div class="sticky" style="margin-top:24px"><button class="btn" type="submit" id="save">Save site content</button> <span id="saveMsg" class="muted" role="status"></span></div>
     </form>
+    <section id="terms" hidden>
+      <h2>Term list</h2>
+      <div class="card" id="termsCard"></div>
+    </section>
     <section id="docs" hidden>
       <h2>Document uploads</h2>
       <div class="card" id="docsCard"></div>
@@ -100,9 +104,39 @@
     del.addEventListener('click',function(){if(!window.confirm('Permanently delete these documents? This cannot be undone.'))return;ADM.api('/api/admin/documents/purge',{body:{olderThanDays:Number(dy.value)}}).then(function(j){res.textContent='Deleted '+j.deleted+' document'+(j.deleted===1?'':'s')+' and '+j.abandoned+' abandoned upload'+(j.abandoned===1?'':'s')+'.';del.disabled=true}).catch(function(e){res.textContent=ADM.errText(e)})});
     r2.appendChild(pv);r2.appendChild(del);host.appendChild(r2);host.appendChild(res);
   }
+  /* ---- term list (the manual term dropdown and the terms the Worker accepts when no schedule is live) ---- */
+  var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'],TC=null,TV=0;
+  function easternYM(){var p=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit'}).formatToParts(new Date()),g=function(t){return +p.filter(function(x){return x.type===t})[0].value};return {y:g('year'),m:g('month')}}
+  function tname(i){return ['Spring','Summer','Fall'][((i%3)+3)%3]+' '+Math.floor(i/3)}
+  function tlist(c){var e=easternYM(),cur=e.y*3+(e.m>=c.fallStart?2:e.m>=c.summerStart?1:0),out=[];for(var i=cur+c.ahead;i>=cur-c.back;i--)out.push({n:tname(i),now:i===cur});return out}
+  function terms(j){
+    TC=j.config;TV=j.config.version;var host=$('#termsCard');host.textContent='';$('#terms').hidden=false;
+    host.appendChild(el('p',null,'The terms students can choose on the form when the course schedule is not being used (manual mode). When a schedule is published, students choose from the terms in your schedule file instead.'));
+    var g=el('div','grid2');host.appendChild(g);
+    function num(label,key,hint,max){var c=el('input');c.type='number';c.min=0;c.max=max;c.value=TC[key];c.addEventListener('input',function(){TC[key]=c.value===''?NaN:Number(c.value);draw()});var w=ADM.field(label,c,hint,'t_'+key);w.style.marginBottom='12px';g.appendChild(w)}
+    function mon(label,key,hint,lo){var c=el('select');MONTHS.forEach(function(m,i){if(i+1<lo)return;var o=el('option',null,m);o.value=i+1;c.appendChild(o)});c.value=TC[key];c.addEventListener('change',function(){TC[key]=Number(c.value);draw()});var w=ADM.field(label,c,hint,'t_'+key);w.style.marginBottom='12px';g.appendChild(w)}
+    num('Terms to show ahead','ahead','How many future terms after the current one (0 to 8).',8);
+    num('Past terms to show','back','How many earlier terms (0 to 12).',12);
+    mon('Summer starts in','summerStart','Spring runs from January until Summer starts.',2);
+    mon('Fall starts in','fallStart','Summer runs until Fall starts; Fall runs to December.',3);
+    var pv=el('div');pv.setAttribute('aria-live','polite');host.appendChild(pv);
+    function draw(){
+      pv.textContent='';var ok=[TC.ahead,TC.back,TC.summerStart,TC.fallStart].every(function(x){return Number.isInteger(x)})&&TC.fallStart>TC.summerStart;
+      if(!ok){pv.appendChild(el('div','banner warn','Check the numbers: whole numbers only, and Fall must start after Summer.'));return}
+      var l=tlist(TC);pv.appendChild(el('h3',null,'Students will be offered ('+l.length+', newest first)'));
+      var ch=el('div','chips');l.forEach(function(t){var c=el('span','chip',t.n+(t.now?' · current term':''));if(t.now)c.style.background='var(--gold-a)';ch.appendChild(c)});pv.appendChild(ch);
+      pv.appendChild(el('p','hint','Terms one step beyond either end are still accepted on submit, so a form opened just as a term changes still goes through.'));
+    }
+    draw();
+    var row=el('div','toolbar');var sv=el('button','btn','Save term list');sv.type='button';
+    sv.addEventListener('click',function(){
+      ADM.api('/api/admin/terms',{body:{baseVersion:TV,config:{ahead:TC.ahead,back:TC.back,summerStart:TC.summerStart,fallStart:TC.fallStart}}}).then(function(r){TC=r.config;TV=r.config.version;ADM.toast('Saved. The form now offers '+r.terms.length+' terms.');draw()}).catch(function(e){ADM.toast(e&&e.errors?e.errors[0].message:ADM.errText(e),true)});
+    });
+    row.appendChild(sv);if(TC.updatedBy)row.appendChild(el('span','hint','Last saved by '+TC.updatedBy+' on '+ADM.fmt(TC.updatedAt)+'.'));host.appendChild(row);
+  }
   ADM.init({page:'content'}).then(function(){
     var jobs=[];
-    if(ADM.can('site.content'))jobs.push(ADM.api('/api/admin/site').then(function(j){build(j.site)}));else $('#siteForm').hidden=true;
+    if(ADM.can('site.content')){jobs.push(ADM.api('/api/admin/site').then(function(j){build(j.site)}));jobs.push(ADM.api('/api/admin/terms').then(terms))}else $('#siteForm').hidden=true;
     if(ADM.can('documents.manage'))jobs.push(ADM.api('/api/admin/documents').then(docs));
     if(!jobs.length){var m=$('main');m.textContent='';m.appendChild(el('h1',null,'No access to this area'));m.appendChild(el('p','sub','Your role doesn\u2019t include site content or document storage.'))}
     return Promise.all(jobs);
