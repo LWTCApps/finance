@@ -32,7 +32,7 @@
 <script>
 (function(){
   var el=ADM.el,$=ADM.$,D=null;
-  var GROUP_ORDER=['Staff console','Documents','Schedule','Forms','Site','Access','Audit'];
+  var GROUP_ORDER=['Staff console','Documents','Schedule','Forms','Site','Notifications','Access','Audit'];
   function roleName(id){return D.roles[id]?D.roles[id].name:id}
   function permLabel(k){for(var i=0;i<D.permissions.length;i++)if(D.permissions[i].key===k)return D.permissions[i].label;return k}
   function scopeText(r){return r.forms.indexOf('*')>-1?'All forms':r.forms.join(', ')}
