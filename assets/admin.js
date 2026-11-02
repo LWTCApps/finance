@@ -31,7 +31,7 @@
     if(e.error==='too_large')return 'That is too large.';
     return 'That didn\u2019t work ('+(e.error||'error')+'). Try again.';
   };
-  var NAV=[['Home','../','admin'],['Forms','../forms/','forms'],['Users & access','../users/','users'],['Site content','../site/','content'],['Activity log','../activity/','audit'],['Schedule','../../staff/schedule/','schedule'],['Staff console','../../staff/','console']];
+  var NAV=[['Home','../','admin'],['Forms','../forms/','forms'],['Users & access','../users/','users'],['Site content','../site/','content'],['Notifications','../notifications/','notifications'],['Activity log','../activity/','audit'],['Schedule','../../staff/schedule/','schedule'],['Staff console','../../staff/','console']];
   /** init({page, need, root}) -> Promise(me). Builds the header and navigation, and handles sign-in and permission problems. */
   A.init=function(o){
     o=o||{};var root=o.root||'../';
