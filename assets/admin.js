@@ -9,7 +9,9 @@
   A.api=function(path,opts){
     opts=opts||{};opts.credentials='same-origin';
     if(opts.body&&typeof opts.body!=='string'){opts.body=JSON.stringify(opts.body);opts.headers=Object.assign({'Content-Type':'application/json'},opts.headers||{});opts.method=opts.method||'POST'}
-    return fetch(path,opts).then(function(r){
+    opts.redirect='manual';
+    return fetch(path,opts).catch(function(){throw {network:true}}).then(function(r){
+      if(r.type==='opaqueredirect')throw {auth:true};
       return r.json().catch(function(){return {}}).then(function(j){
         if(r.status===401){throw {auth:true}}
         if(!r.ok||j.ok===false){j.status=r.status;throw j}
@@ -25,17 +27,35 @@
   A.errText=function(e){
     if(!e)return 'Something went wrong.';
     if(e.auth)return 'Your sign-in expired. Reload the page to sign in again.';
+    if(e.network)return 'Couldn\u2019t reach the administration service. Check your connection, reload the page, and sign in again if asked.';
     if(e.error==='forbidden')return 'You don\u2019t have permission to do that'+(e.permission?' ('+e.permission+')':'')+'.';
     if(e.error==='self_lockout')return 'That would remove your own ability to manage access. Ask another administrator to make this change.';
     if(e.error==='stale')return 'Someone published a newer version while you were editing. Reload the page and re-apply your changes.';
     if(e.error==='too_large')return 'That is too large.';
+    if(e.error==='not_found'&&e.status===404)return 'This page needs a newer Worker than the one that is running. Update worker.financial-aid.js to the latest version (check /api/version), then reload.';
     return 'That didn\u2019t work ('+(e.error||'error')+'). Try again.';
   };
   var NAV=[['Home','../','admin'],['Forms','../forms/','forms'],['Users & access','../users/','users'],['Site content','../site/','content'],['Notifications','../notifications/','notifications'],['Activity log','../activity/','audit'],['Schedule','../../staff/schedule/','schedule'],['Staff console','../../staff/','console']];
   /** init({page, need, root}) -> Promise(me). Builds the header and navigation, and handles sign-in and permission problems. */
   A.init=function(o){
     o=o||{};var root=o.root||'../';
-    return fetch('/api/admin/me',{credentials:'same-origin'}).then(function(r){return r.json().catch(function(){return {}}).then(function(j){return {r:r,j:j}})}).then(function(x){
+    var ctl=typeof AbortController==='function'?new AbortController():null,timer=ctl?setTimeout(function(){ctl.abort()},20000):null;
+    function stuck(kind){
+      var main=A.$('main'),who=A.$('.who');if(who)who.textContent='Not signed in';
+      if(!main)return;main.textContent='';
+      main.appendChild(el('h1',null,kind==='redirect'?'Sign in again':'Couldn\u2019t reach the administration service'));
+      main.appendChild(el('p','sub',kind==='redirect'
+        ?'Cloudflare Access wants you to sign in again for the administration area. Being signed in to the staff console doesn\u2019t always cover it, because each area is its own Access application.'
+        :'The page asked the Worker who you are and got no usable answer. Usual causes: Cloudflare Access is asking you to sign in again, the connection dropped, or the Worker isn\u2019t reachable at /api/admin/.'));
+      var row=el('div','toolbar');var b=el('a','btn','Sign in and try again');b.href='/api/admin/me';row.appendChild(b);
+      var r=el('button','btn alt','Reload this page');r.type='button';r.addEventListener('click',function(){location.reload()});row.appendChild(r);main.appendChild(row);
+      main.appendChild(el('p','hint','"Sign in and try again" opens the Worker\u2019s own answer page, which makes Cloudflare Access ask for your sign-in. When it shows a short block of text starting {"ok":true, come back to this page and reload it. If it shows {"ok":false,"error":"unauthorized"} or a Cloudflare page, ask an administrator to check that the administration Access application covers admin/* and api/admin/*.'));
+    }
+    return fetch('/api/admin/me',{credentials:'same-origin',redirect:'manual',signal:ctl?ctl.signal:undefined}).then(function(r){
+      clearTimeout(timer);
+      if(r.type==='opaqueredirect'){stuck('redirect');throw {auth:true}}
+      return r.json().catch(function(){return {}}).then(function(j){return {r:r,j:j}});
+    },function(){clearTimeout(timer);stuck('network');throw {network:true}}).then(function(x){
       var main=A.$('main');
       if(x.r.status===401){main.textContent='';main.appendChild(el('div','banner bad','Your sign-in expired. Reload this page to sign in again.'));throw {auth:true}}
       if(x.r.status===403||!x.j.ok){
