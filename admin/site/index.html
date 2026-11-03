@@ -39,7 +39,7 @@
     </section>
   </main>
 </div>
-<script src="../../assets/admin.js?v=20261030"></script>
+<script src="../../assets/admin.js?v=20261104"></script>
 <script>
 (function(){
   var el=ADM.el,$=ADM.$,inputs={};
@@ -136,7 +136,7 @@
   }
   ADM.init({page:'content'}).then(function(){
     var jobs=[];
-    if(ADM.can('site.content')){jobs.push(ADM.api('/api/admin/site').then(function(j){build(j.site)}));jobs.push(ADM.api('/api/admin/terms').then(terms))}else $('#siteForm').hidden=true;
+    if(ADM.can('site.content')){jobs.push(ADM.api('/api/admin/site').then(function(j){build(j.site)}));jobs.push(ADM.api('/api/admin/terms').then(terms).catch(function(e){var h=$('#termsCard');$('#terms').hidden=false;h.textContent='';h.appendChild(el('div','banner warn',e&&e.error==='not_found'?'The Term list needs Worker version 2026-11-03.1 or later. The Worker that is running is older. Update worker.financial-aid.js and reload.':ADM.errText(e)))}))}else $('#siteForm').hidden=true;
     if(ADM.can('documents.manage'))jobs.push(ADM.api('/api/admin/documents').then(docs));
     if(!jobs.length){var m=$('main');m.textContent='';m.appendChild(el('h1',null,'No access to this area'));m.appendChild(el('p','sub','Your role doesn\u2019t include site content or document storage.'))}
     return Promise.all(jobs);
