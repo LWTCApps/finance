@@ -23,7 +23,7 @@
 <script>
 (function(){
   var el=ADM.el,$=ADM.$,all=[];
-  var NAMES={access:'Access',forms:'Forms',site:'Site content',documents:'Documents',schedule:'Schedule',notifications:'Notifications',console:'Staff console'};
+  var NAMES={access:'Access',forms:'Forms',site:'Site content',documents:'Documents',schedule:'Schedule',notifications:'Notifications',console:'Staff console',security:'Security'};
   function pretty(a){return String(a||'').replace(/-/g,' ').replace(/^./,function(c){return c.toUpperCase()})}
   function draw(){
     var area=$('#area').value,q=$('#q').value.trim().toLowerCase(),tb=$('#rows');tb.textContent='';
